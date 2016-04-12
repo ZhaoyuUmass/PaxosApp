@@ -115,11 +115,13 @@ public class ReconfigurableEtherpadAppClient extends ReconfigurableAppClientAsyn
 					@Override
 					public void handleResponse(Request request) {
 						System.out.println("Received:"+request);
+						/*
 						try {
 							sendTestReqeust(client, name);
 						} catch (IOException e) {
 							e.printStackTrace();
 						}
+						*/
 					}
 				});
 		

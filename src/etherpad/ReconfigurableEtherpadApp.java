@@ -53,7 +53,7 @@ public class ReconfigurableEtherpadApp extends AbstractReconfigurablePaxosApp<St
 		int pos = value.indexOf("|");
 		//assert(pos != -1);
 		System.out.println("The position is "+pos);
-		value = value.substring(pos);
+		value = value.substring(pos+1);
 		
 		return parseRequest(name, value);
 	}
@@ -77,17 +77,23 @@ public class ReconfigurableEtherpadApp extends AbstractReconfigurablePaxosApp<St
 				
 		System.out.println(this+":restore "+padName+" "+state);
 		String data = null;
-		HashMap map = client.getText(padName);
+		
+		HashMap<String, Object> padMap = client.listAllPads();
+		for(String pad:padMap.keySet()){
+			System.out.println("Existing pad "+pad);
+		}
+		
+		HashMap<String, Object> map = client.getText(padName);
 		if(map.containsKey("text")){
 			data = map.get("text").toString();
 		}
 		
-		if(state != null){
-			client.setText(padName, state);
-		} else if (data != null){
+		if (state == null && data != null){
 			client.deletePad(padName);
-		} else {
-			// do nothing 
+			client.createPad(padName);
+		}
+		if (state != null){
+			client.createPad(padName, state);
 		}
 		
 		System.out.println(this+": restore state has been restored "+state);
