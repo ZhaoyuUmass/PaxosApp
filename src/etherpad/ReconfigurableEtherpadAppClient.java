@@ -105,7 +105,7 @@ public class ReconfigurableEtherpadAppClient extends ReconfigurableAppClientAsyn
 	public static void main(String[] args) throws IOException, InterruptedException{
 		final ReconfigurableEtherpadAppClient client = new ReconfigurableEtherpadAppClient();
 		// group name is also the pad name
-		final String name = "foo";
+		final String name = ReconfigurableEtherpadApp.class.getSimpleName()+0;
 		
 		
 		System.out.println("Actives are :"+PaxosConfig.getActives());
