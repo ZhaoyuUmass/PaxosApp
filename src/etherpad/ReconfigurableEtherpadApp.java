@@ -32,7 +32,7 @@ public class ReconfigurableEtherpadApp extends AbstractReconfigurablePaxosApp<St
 	final static EPLiteClient client = new EPLiteClient(hostName, apiKey);
 	final static String delimiter = ",";
 	
-	//private final HashMap<String, String> cache = new HashMap<String, String>();	
+	private final HashMap<String, String> cache = new HashMap<String, String>();	
 	
 	
 	
@@ -59,6 +59,7 @@ public class ReconfigurableEtherpadApp extends AbstractReconfigurablePaxosApp<St
 	}
 
 	private boolean parseRequest(String padName, String value){
+		
 		String content = client.getText(padName).get("text").toString();
 		content = content + value;
 		client.setText(padName, content);
@@ -73,9 +74,10 @@ public class ReconfigurableEtherpadApp extends AbstractReconfigurablePaxosApp<St
 
 	@Override
 	public boolean restore(String padName, String state) {
-		System.out.println(this+":restore "+padName+" "+state);
-		
 		String data = client.getText(padName).get("text").toString();
+		
+		System.out.println(this+":restore "+padName+" "+state+" >>>> "+data);
+		
 		
 		if(state != null){
 			client.setText(padName, state);
