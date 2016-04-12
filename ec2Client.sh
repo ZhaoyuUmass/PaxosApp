@@ -1,7 +1,7 @@
 #!/bin/bash
 
 HEAD=`dirname $0`
-CLASSPATH=$CLASSPATH:`ls $HEAD/jar/fuse.jar`
+CLASSPATH=$CLASSPATH:`ls $HEAD/jar/etherpad.jar`
 LOG_PROPERTIES=logging.properties
 GP_PROPERTIES=gigapaxos.properties
 JVMFLAGS="-ea -Djava.util.logging.config.file=$LOG_PROPERTIES \
