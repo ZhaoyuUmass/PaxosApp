@@ -27,8 +27,8 @@ public class ReconfigurableEtherpadApp extends AbstractReconfigurablePaxosApp<St
 	implements Replicable, Reconfigurable, ClientMessenger {
 	
 	final static int port = 9001;
-	final static String hostName = "http://localhost:" + port;
-	final static String apiKey = "477304aadcaafc1ad3665e700b99583a4c21480b3e04939c3c6cd903ba72cd28";
+	final static String hostName = "http://127.0.0.1:" + port;
+	final static String apiKey = "7c1a3ced07e809703dcaf714426843356d3af35073d4a991ce4606e34f818f16";
 	final static EPLiteClient client = new EPLiteClient(hostName, apiKey);
 	final static String delimiter = ",";
 	
