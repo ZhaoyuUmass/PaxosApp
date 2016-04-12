@@ -90,10 +90,15 @@ public class ReconfigurableEtherpadApp extends AbstractReconfigurablePaxosApp<St
 		}
 		
 		if (state == null && data != null){
-			client.deletePad(padName);
-			client.createPad(padName);
+			if(padIDs.contains(padName)){
+				client.deletePad(padName);
+			}
+			//client.createPad(padName);
 		}
 		if (state != null){
+			if(padIDs.contains(padName)){
+				client.deletePad(padName);
+			}
 			client.createPad(padName, state);
 		}
 		
