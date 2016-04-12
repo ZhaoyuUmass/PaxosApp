@@ -37,7 +37,7 @@ public class ReconfigurableEtherpadGeoClient extends ReconfigurableAppClientAsyn
 	private final static String serviceName = "ReconfigurableEtherpadApp0";
 	private final static int NUM_THREAD = 10;
 	private final static int TIMEOUT = 2000;
-	private final static int REQ_LENTGH = 1;
+	private final static int REQ_LENTGH = 130;
 	
 	private static ReconfigurableEtherpadGeoClient client;	
 	private static ThreadPoolExecutor executorPool = new ThreadPoolExecutor(NUM_THREAD, NUM_THREAD, 0, TimeUnit.SECONDS, 
@@ -96,7 +96,7 @@ public class ReconfigurableEtherpadGeoClient extends ReconfigurableAppClientAsyn
 			
 			try {
 				System.out.println("Send request "+received);
-				client.sendRequest(new AppRequest(serviceName, HOST_NAME+"|"+nextString(),
+				client.sendRequest(new AppRequest(serviceName, HOST_NAME+","+nextString(),
 						AppRequest.PacketType.DEFAULT_APP_REQUEST, false)
 						, new Callback(System.currentTimeMillis(), obj));
 			} catch (IOException e) {

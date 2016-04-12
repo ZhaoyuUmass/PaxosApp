@@ -103,7 +103,7 @@ public class ReconfigurableEtherpadProfile extends AbstractDemandProfile{
 		
 		AppRequest req = (AppRequest) request;
 		String content = req.getValue();
-		String host = content.split("|")[0];
+		String host = content.split(",")[0];
 		
 		if(mostActiveRegion == null ){
 			mostActiveRegion = host;
