@@ -70,6 +70,7 @@ public class ReconfigurableEtherpadApp extends AbstractReconfigurablePaxosApp<St
 	@Override
 	public String checkpoint(String name) {
 		String data = client.getText(name).get("text").toString();
+		System.out.println("checkpoint data:"+data);
 		return data != null? data : null;
 	}
 
