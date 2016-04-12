@@ -32,7 +32,8 @@ public class ReconfigurableEtherpadApp extends AbstractReconfigurablePaxosApp<St
 	final static String apiKey = "7c1a3ced07e809703dcaf714426843356d3af35073d4a991ce4606e34f818f16";
 	final static EPLiteClient client = new EPLiteClient(hostName, apiKey);
 	final static String delimiter = ",";
-	
+	// cache the name exists in padIDs
+	List<String> padIDs = null;
 	
 	private final HashMap<String, String> cache = new HashMap<String, String>();	
 	
@@ -59,8 +60,10 @@ public class ReconfigurableEtherpadApp extends AbstractReconfigurablePaxosApp<St
 
 	private boolean parseRequest(String padName, String value){
 		
-		//String content = client.getText(padName).get("text").toString();
-		//content = content + value;
+		if(! padIDs.contains(padName)){
+			client.createPad(padName);
+			padIDs.add(padName);
+		}
 		client.setText(padName, value);
 		return true;
 	}
@@ -79,7 +82,7 @@ public class ReconfigurableEtherpadApp extends AbstractReconfigurablePaxosApp<St
 		String data = null;
 		
 		HashMap<String, Object> padMap = client.listAllPads();
-		List<String> padIDs = (List<String>) padMap.get("padIDs");
+		padIDs = (List<String>) padMap.get("padIDs");
 		for(String item:padIDs){
 			System.out.println("Existing pad:"+item);
 		}
@@ -92,14 +95,18 @@ public class ReconfigurableEtherpadApp extends AbstractReconfigurablePaxosApp<St
 		if (state == null && data != null){
 			if(padIDs.contains(padName)){
 				client.deletePad(padName);
+				padIDs.remove(padName);
 			}
+			
 			//client.createPad(padName);
 		}
 		if (state != null){
 			if(padIDs.contains(padName)){
 				client.deletePad(padName);
+				padIDs.remove(padName);
 			}
 			client.createPad(padName, state);
+			padIDs.add(padName);
 		}
 		
 		System.out.println(this+": restore state has been restored "+state);
