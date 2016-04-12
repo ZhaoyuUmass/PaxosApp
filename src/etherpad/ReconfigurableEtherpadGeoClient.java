@@ -34,7 +34,7 @@ public class ReconfigurableEtherpadGeoClient extends ReconfigurableAppClientAsyn
 	private static String HOST_REGION = null;
 	private static String HOST_NAME = null;
 	// service name is also the pad name
-	private final static String serviceName = "foo";
+	private final static String serviceName = "ReconfigurableEtherpadApp0";
 	private final static int NUM_THREAD = 10;
 	private final static int TIMEOUT = 2000;
 	private final static int REQ_LENTGH = 1;
