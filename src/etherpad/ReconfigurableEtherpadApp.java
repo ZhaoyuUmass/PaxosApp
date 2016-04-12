@@ -86,10 +86,11 @@ public class ReconfigurableEtherpadApp extends AbstractReconfigurablePaxosApp<St
 		for(String item:padIDs){
 			System.out.println("Existing pad:"+item);
 		}
-		
-		HashMap<String, Object> map = client.getText(padName);
-		if(map.containsKey("text")){
-			data = map.get("text").toString();
+		if(padIDs.contains(padName)){
+			HashMap<String, Object> map = client.getText(padName);
+			if(map.containsKey("text")){
+				data = map.get("text").toString();
+			}
 		}
 		
 		if (state == null && data != null){
