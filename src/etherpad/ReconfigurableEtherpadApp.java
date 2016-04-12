@@ -1,6 +1,7 @@
 package etherpad;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 
 import org.json.JSONException;
@@ -79,8 +80,9 @@ public class ReconfigurableEtherpadApp extends AbstractReconfigurablePaxosApp<St
 		String data = null;
 		
 		HashMap<String, Object> padMap = client.listAllPads();
-		for(String pad:padMap.keySet()){
-			System.out.println("Existing pad "+pad);
+		List<String> padIDs = (List<String>) padMap.get("padIDs");
+		for(String item:padIDs){
+			System.out.println("Existing pad:"+item);
 		}
 		
 		HashMap<String, Object> map = client.getText(padName);
