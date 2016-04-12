@@ -74,10 +74,14 @@ public class ReconfigurableEtherpadApp extends AbstractReconfigurablePaxosApp<St
 
 	@Override
 	public boolean restore(String padName, String state) {
-		String data = client.getText(padName).get("text").toString();
 		
-		System.out.println(this+":restore "+padName+" "+state+" >>>> "+data);
 		
+		System.out.println(this+":restore "+padName+" "+state);
+		String data = null;
+		HashMap map = client.getText(padName);
+		if(map.containsKey("text")){
+			data = map.get("text").toString();
+		}
 		
 		if(state != null){
 			client.setText(padName, state);
