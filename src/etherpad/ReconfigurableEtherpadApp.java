@@ -51,7 +51,7 @@ public class ReconfigurableEtherpadApp extends AbstractReconfigurablePaxosApp<St
 		String value = request.getValue();
 		
 		int pos = value.indexOf("|");
-		assert(pos != -1);
+		//assert(pos != -1);
 		System.out.println("The position is "+pos);
 		value = value.substring(pos);
 		
@@ -60,9 +60,9 @@ public class ReconfigurableEtherpadApp extends AbstractReconfigurablePaxosApp<St
 
 	private boolean parseRequest(String padName, String value){
 		
-		String content = client.getText(padName).get("text").toString();
-		content = content + value;
-		client.setText(padName, content);
+		//String content = client.getText(padName).get("text").toString();
+		//content = content + value;
+		client.setText(padName, value);
 		return true;
 	}
 	
@@ -74,8 +74,7 @@ public class ReconfigurableEtherpadApp extends AbstractReconfigurablePaxosApp<St
 
 	@Override
 	public boolean restore(String padName, String state) {
-		
-		
+				
 		System.out.println(this+":restore "+padName+" "+state);
 		String data = null;
 		HashMap map = client.getText(padName);
