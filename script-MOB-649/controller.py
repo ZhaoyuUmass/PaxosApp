@@ -10,6 +10,7 @@ import os
 from threading import Condition
 
 KEY_FILE = "EC2"
+NONE_PORT = 60001
 
 result = []
 cv = Condition()
