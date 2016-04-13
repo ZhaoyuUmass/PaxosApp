@@ -70,7 +70,10 @@ class cmdThread (threading.Thread):
 # start the client is changed
 def runClient(host, num_req):
     cmd = "./PaxosEtherpad/ec2Client.sh etherpad.ReconfigurableEtherpadExpClient "
+    cmd += str(num_req)+" "
     cmd += hostToName[host]
+    cmd += " true"
+    print cmd
     th = cmdThread(host, cmd)
     th.start()
 
@@ -127,4 +130,5 @@ def main():
     processResult()
 
 if __name__ == "__main__":
-    main()
+    runClient("54.67.107.203", 1)
+    #main()
