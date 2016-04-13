@@ -187,8 +187,8 @@ public class ReconfigurableEtherpadExpClient extends ReconfigurableAppClientAsyn
 			totalLatency += lat;
 			response += lat+",";
 		}
-		if(response.length() > 2)
-			response = response.substring(0, response.length()-2);
+		if(response.length() > 1)
+			response = response.substring(0, response.length()-1);
 		
 		System.out.println("Sent "+NUM_REQ+" requests, received "+(received-timeout)+" requests and "+ timeout + " requests timed out"
 				+ ". The average latency is "+totalLatency/(received-timeout)+"ms");
@@ -201,7 +201,7 @@ public class ReconfigurableEtherpadExpClient extends ReconfigurableAppClientAsyn
 	    	out.flush();
 	    	socket.close();
 		}
-		
+		System.exit(0);
 	}
 
 	@Override
