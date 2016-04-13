@@ -2,8 +2,8 @@
 
 HEAD=`dirname $0`
 CLASSPATH=$CLASSPATH:`ls $HEAD/jar/etherpad.jar`
-LOG_PROPERTIES=logging.properties
-GP_PROPERTIES=gigapaxos.properties
+LOG_PROPERTIES=$HEAD/logging.properties
+GP_PROPERTIES=$HEAD/gigapaxos.properties
 JVMFLAGS="-ea -Djava.util.logging.config.file=$LOG_PROPERTIES \
  -DgigapaxosConfig=$GP_PROPERTIES"
 

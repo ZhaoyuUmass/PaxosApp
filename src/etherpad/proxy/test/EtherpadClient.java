@@ -36,11 +36,13 @@ public class EtherpadClient {
 		int num_req = Integer.parseInt(args[1]);
 		if(num_req <= 0){
 			System.out.println("Please enter num of requests largeer than 0.");
+			System.exit(0);
 		}
 		
 		String hostName = "http://"+host+":" + 9001;
 		client = new EPLiteClient(hostName, apiKey, DEFAULT_API_VERSION);
 		ArrayList<Long> latency = new ArrayList<Long>();
+		System.out.println("Etherpad client is initialized.");
 		
 		List<String> pads = (List<String>) client.listAllPads().get("padIDs");
 		if(!pads.contains(padName)){
