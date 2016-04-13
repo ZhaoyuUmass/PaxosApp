@@ -23,6 +23,7 @@ import edu.umass.cs.nio.interfaces.IntegerPacketType;
 import edu.umass.cs.reconfiguration.ReconfigurableAppClientAsync;
 import edu.umass.cs.reconfiguration.examples.AppRequest;
 import edu.umass.cs.reconfiguration.examples.noopsimple.NoopApp;
+import edu.umass.cs.reconfiguration.reconfigurationpackets.ReconfigurationPacket;
 import edu.umass.cs.reconfiguration.reconfigurationutils.RequestParseException;
 
 /**
@@ -74,12 +75,15 @@ public class ReconfigurableEtherpadGeoClient extends ReconfigurableAppClientAsyn
 		}
 		
 		@Override
-		public void handleResponse(Request request) {
+		public void handleResponse(Request response) {
+//			if(response.getRequestType()==ReconfigurationPacket.PacketType.ACTIVE_REPLICA_ERROR)
+//				return;
+			
 			long eclapsed = System.currentTimeMillis() - this.initTime;
 			updateLatency(eclapsed);
 			System.out.println("Latency of request"+received +":"+eclapsed+"ms");
-			if(request.getRequestType() != AppRequest.PacketType.DEFAULT_APP_REQUEST){
-				//System.out.println(request+" "+request.getRequestType());
+			if(response.getRequestType() != AppRequest.PacketType.DEFAULT_APP_REQUEST){
+				System.out.println(response+" "+response.getRequestType());
 			}
 			synchronized(obj){
 				obj.notify();
