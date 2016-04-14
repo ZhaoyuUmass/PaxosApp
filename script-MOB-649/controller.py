@@ -82,11 +82,13 @@ def runClient(host, num_req):
 
 def stopHost(host):
     cmd = "./PaxosEtherpad/clear.sh"
+    print cmd
     th = cmdThread(host, cmd)
     th.start()
 
 def startHost(host):
     cmd = "./PaxosEtherpad/ec2Server.sh start "+hostToName[host][1]
+    print cmd
     th = cmdThread(host, cmd)
     th.start()
 
