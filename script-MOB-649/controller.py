@@ -146,7 +146,7 @@ def processResult():
     for item in result:
         latencies = item.split(",")
         yaxis = yaxis + latencies
-    xaxis = range(len(xaxis))
+    xaxis = range(len(yaxis))
     yaxis = movingAverage(yaxis)
     print xaxis
     print yaxis    
