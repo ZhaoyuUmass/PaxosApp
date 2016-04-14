@@ -131,13 +131,13 @@ def restartServers():
         stopHost(host)
     stopHost(RECONFIGURATOR)
     
-    Thread.sleep(1)
+    time.sleep(1)
     
     for host in hostToName.keys():
         startHost(host)
     th = cmdThread(RECONFIGURATOR, "./PaxosEtherpad/ec2Server.sh 900")
     th.start()
-    Thread.sleep(1)
+    time.sleep(1)
 
 def main():
     # Step 0: prepare
