@@ -1,4 +1,5 @@
 #!/bin/bash
+HEAD=`dirname $0`
 rm -r paxos_logs/ reconfiguration_DB derby.log
-./ec2Server.sh stop all
+./$HEAD/ec2Server.sh stop all
 echo ""
