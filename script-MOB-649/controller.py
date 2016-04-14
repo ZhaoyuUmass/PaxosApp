@@ -9,7 +9,9 @@ import os
 
 from threading import Condition
 
-KEY_FILE = "CSKey.pem"
+KEY_FILE = sys.argv[1]
+TRACE_FILE = sys.argv[2]
+
 NONE_PORT = 60001
 RECONFIGURATOR = "52.26.182.238"
 ETHERPAD_FOLDER = "PaxosEtherpad/"
@@ -23,7 +25,7 @@ SSL_OPTIONS=' -Djavax.net.ssl.keyStorePassword=qwerty -Djavax.net.ssl.keyStore=c
 
 COMMAND = "java "+JVMFLAGS+SSL_OPTIONS+" -cp "+JAR+" "
 
-print COMMAND
+#print COMMAND
 
 
 
@@ -38,7 +40,7 @@ def loadHost():
         line = line[:-1]
         line = line.split(" ")
         dic[line[0]] = (line[1], line[2])
-    print dic
+    #print dic
     return dic
 
 hostToName = loadHost()
@@ -101,23 +103,35 @@ def runClient(host, num_req):
     th = cmdThread(host, cmd)
     th.start()
 
-def runClient(host, num_req):
+def runClientRMC(host, num_req):
+    print "send "+str(num_req)+" request to "+host
     cmd = COMMAND+"etherpad.ReconfigurableEtherpadExpClient "
     cmd += str(num_req)+" "
     cmd += hostToName[host][0]
-    cmd += " true > output &"
-
+    cmd += " false"
+    cmd = "ssh ubuntu@"+host+" "+cmd
+    p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    out, err = p.communicate()
+    if err is None:
+        #print out
+        global result
+        line = out.split("\n")[-2]
+        print 'last line is:',line
+        result.append(line)
+    else:
+        print err
+    
 
 # Do not use script, hard code the command!
 def stopHost(host):
     cmd = "./PaxosEtherpad/clear.sh "
-    print cmd
+    #print cmd
     th = cmdThread(host, cmd)
     th.start()
 
 def startHost(host):
     cmd = COMMAND + "edu.umass.cs.reconfiguration.ReconfigurableNode " + hostToName[host][1]+" &"
-    print cmd
+    #print cmd
     th = cmdThread(host, cmd)
     th.start()
 
@@ -125,20 +139,14 @@ def sendRequests(trace):
     for load in trace:
         host = load[0]
         num_req = load[1]
-        runClient(host, num_req)
-        global finished
-        finished = False
-        cv.acquire()
-        while not finished:            
-            cv.wait()
-        cv.release()
+        runClientRMC(host, num_req)
         print "this round is done for host "+host
     print "Send all requests!"
 
 
 def loadTrace():
     arr = []
-    fin = open("trace","r")
+    fin = open(TRACE_FILE,"r")
     for line in fin:
         line = line[:-1]
         line = line.split(" ")
@@ -163,7 +171,7 @@ def restartServers():
     for host in hostToName.keys():
         stopHost(host)
     stopHost(RECONFIGURATOR)
-    "Stop servers ... done"
+    print "Stop servers ... done!"
     time.sleep(5)
     
     for host in hostToName.keys():
@@ -171,29 +179,32 @@ def restartServers():
     th = cmdThread(RECONFIGURATOR, COMMAND+"edu.umass.cs.reconfiguration.ReconfigurableNode 900 &")
     th.start()
     time.sleep(5)
-    "Start servers ... done"
+    print "Start servers ... done!"
     
     th = cmdThread(RECONFIGURATOR, COMMAND+"etherpad.ReconfigurableEtherpadAppClient &")
     th.start()
     time.sleep(1)
-    print "Create group ... done"
+    print "Create group ... done!"
 
 def main():
     # Step 0: prepare
-    serverThread().start()
+    #serverThread().start()
 
     # Step 1:
+    print 'Restart all servers ...'
     restartServers()
     
     # Step 2: load trace
+    print 'Load trace ...'
     trace = loadTrace()
     
     # Step 3: send requests
+    print 'Start sending requests according to the trace ...'
     sendRequests(trace)
 
     # Step 4: plot data
+    print 'Process the result ...'
     processResult()
 
 if __name__ == "__main__":
-    #runClient("54.67.107.203", 1)
     main()
