@@ -192,7 +192,7 @@ public class ReconfigurableEtherpadExpClient extends ReconfigurableAppClientAsyn
 		
 		System.out.println("Sent "+NUM_REQ+" requests, received "+(received-timeout)+" requests and "+ timeout + " requests timed out"
 				+ ". The average latency is "+totalLatency/(received-timeout)+"ms");
-		System.out.println(response);
+		System.out.println("RESPONSE:"+response);
 		
 		if(flag){
 			Socket socket = new Socket("128.119.245.5", 60001);

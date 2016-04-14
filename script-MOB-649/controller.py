@@ -11,6 +11,12 @@ from threading import Condition
 
 KEY_FILE = sys.argv[1]
 TRACE_FILE = sys.argv[2]
+RESTART = False
+if len(sys.argv)>3:
+    RESTART = bool(sys.argv[3])
+
+
+alpha = 0.05
 
 NONE_PORT = 60001
 RECONFIGURATOR = "52.26.182.238"
@@ -104,23 +110,33 @@ def runClient(host, num_req):
     th.start()
 
 def runClientRMC(host, num_req):
-    print "send "+str(num_req)+" request to "+host
+    print "Start sending "+str(num_req)+" request to "+host,hostToName[host]
     cmd = COMMAND+"etherpad.ReconfigurableEtherpadExpClient "
     cmd += str(num_req)+" "
     cmd += hostToName[host][0]
     cmd += " false"
-    cmd = "ssh ubuntu@"+host+" "+cmd
+    cmd = "ssh -i "+ KEY_FILE +" ubuntu@"+host+" "+cmd
     p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     out, err = p.communicate()
     if err is None:
         #print out
+        flag = False
         global result
-        line = out.split("\n")[-2]
-        print 'last line is:',line
-        result.append(line)
+        lines = out.split("\n")
+        line = None
+        for l in lines:
+            if "RESPONSE:" in l:
+                line = l.replace("RESPONSE:", "")
+                flag = True
+        if flag:
+            result.append(line)           
+        else:
+            print "This run fails",out
+            return False
     else:
         print err
-    
+        return False
+    return True
 
 # Do not use script, hard code the command!
 def stopHost(host):
@@ -139,8 +155,11 @@ def sendRequests(trace):
     for load in trace:
         host = load[0]
         num_req = load[1]
-        runClientRMC(host, num_req)
-        print "this round is done for host "+host
+        sent = runClientRMC(host, num_req)
+        if not sent:
+            print "Experiment failed"
+            break
+        print "this round is done for host "+host,hostToName[host]
     print "Send all requests!"
 
 
@@ -154,16 +173,22 @@ def loadTrace():
     return arr
 
 def movingAverage(l):
-    return l
+    history = l[0]
+    arr = []
+    for item in l:
+        history = item*alpha+history*(1-alpha)
+        arr.append(history)
+    return arr
 
 def processResult():
     yaxis = []
     for item in result:
         latencies = item.split(",")
         latencies = map(int, latencies)
+        latencies = movingAverage(latencies)
         yaxis = yaxis + latencies
     xaxis = range(len(yaxis))
-    yaxis = movingAverage(yaxis)
+
     print "xaxis:",xaxis
     print "yaxis:",yaxis    
         
@@ -189,10 +214,11 @@ def restartServers():
 def main():
     # Step 0: prepare
     #serverThread().start()
-
+    
     # Step 1:
-    print 'Restart all servers ...'
-    restartServers()
+    if RESTART:        
+        print 'Restart all servers ...'
+        restartServers()
     
     # Step 2: load trace
     print 'Load trace ...'
