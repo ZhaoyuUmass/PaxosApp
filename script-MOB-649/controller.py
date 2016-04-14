@@ -25,8 +25,11 @@ COMMAND = "java "+JVMFLAGS+SSL_OPTIONS+" -cp "+JAR+" "
 
 print COMMAND
 
+
+
 result = []
 cv = Condition()
+finished = False
 
 def loadHost():
     dic = {}
@@ -48,9 +51,14 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
         print datetime.datetime.now(),"receive data:",self.data,"from ",self.request
         global result
         result.append(self.data)
+        global finished
+        finished = True
+        print "try to acquire lock"
         cv.acquire()
+        print "acquired lock"
         cv.notify()
         cv.release()
+        print "release lock"
 
 
 class serverThread(threading.Thread):
@@ -111,6 +119,7 @@ def sendRequests(trace):
         host = load[0]
         num_req = load[1]
         runClient(host, num_req)
+        global finished
         finished = False
         cv.acquire()
         while not finished:            
@@ -146,7 +155,7 @@ def restartServers():
     for host in hostToName.keys():
         stopHost(host)
     stopHost(RECONFIGURATOR)
-    
+    "Stop servers ... done"
     time.sleep(5)
     
     for host in hostToName.keys():
@@ -154,10 +163,12 @@ def restartServers():
     th = cmdThread(RECONFIGURATOR, COMMAND+"edu.umass.cs.reconfiguration.ReconfigurableNode 900 &")
     th.start()
     time.sleep(5)
-
+    "Start servers ... done"
+    
     th = cmdThread(RECONFIGURATOR, COMMAND+"etherpad.ReconfigurableEtherpadAppClient &")
     th.start()
     time.sleep(1)
+    print "Create group ... done"
 
 def main():
     # Step 0: prepare
