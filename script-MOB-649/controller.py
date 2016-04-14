@@ -62,7 +62,8 @@ class cmdThread (threading.Thread):
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         try:
             ssh.connect(self.host, username = 'ubuntu', key_filename=KEY_FILE)
-            ssh.exec_command(self.cmd)
+            chan = ssh.get_transport().open_session()
+            chan.exec_command(self.cmd)
             ssh.close()
         except:
             print "Unexpected error:", sys.exc_info()[0]
