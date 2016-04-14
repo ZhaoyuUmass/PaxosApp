@@ -16,7 +16,7 @@ import edu.umass.cs.gigapaxos.PaxosConfig;
 public class FakeLatency {
 	private static HashMap<String, HashMap<String, Double>> latencies = new HashMap<String, HashMap<String, Double>>();
 	private final static double DEFAULT_HIGHEST_LATENCY = 500;	
-	
+	private final static String TABLE_FILE = "../table";
 	private static HashMap<InetAddress, String> addressToName = new HashMap<InetAddress, String>();
 	
 	protected FakeLatency() {
@@ -29,7 +29,7 @@ public class FakeLatency {
 		StringBuilder builder = new StringBuilder();
 		FileInputStream fis = null;
 		try{
-			fis = new FileInputStream("table");		
+			fis = new FileInputStream(TABLE_FILE);		
 			int ch;
 			while((ch = fis.read()) != -1){
 			    builder.append((char)ch);
