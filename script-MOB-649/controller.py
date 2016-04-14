@@ -133,7 +133,7 @@ def restartServers():
         stopHost(host)
     stopHost(RECONFIGURATOR)
     
-    time.sleep(1)
+    time.sleep(5)
     
     for host in hostToName.keys():
         startHost(host)
