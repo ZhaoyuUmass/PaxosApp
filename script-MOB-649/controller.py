@@ -116,17 +116,20 @@ def processResult():
         
 
 def main():
-    # Step 0: start server
+    # Step 0: prepare
     serverThread().start()
+
+    # Step 1: restart all the servers
     
-    # Step 1: load trace
+    
+    # Step 2: load trace
     trace = loadTrace()
     print trace
     
-    # Step 2: send requests
+    # Step 3: send requests
     sendRequests(trace)
 
-    # Step 3: plot data
+    # Step 4: plot data
     processResult()
 
 if __name__ == "__main__":
