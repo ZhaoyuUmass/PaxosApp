@@ -142,13 +142,8 @@ def restartServers():
     time.sleep(1)
 
 def main():
-    # Step 0: prepare
+    # Step 1: prepare
     serverThread().start()
-
-    # Step 1: restart all the servers
-    restartServers()
-    print "Servers all restart ... "
-    raw_input()
     
     # Step 2: load trace
     trace = loadTrace()
@@ -162,5 +157,4 @@ def main():
 
 if __name__ == "__main__":
     #runClient("54.67.107.203", 1)
-    #main()
-    startHost("54.67.107.203")
+    main()
