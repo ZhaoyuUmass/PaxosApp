@@ -9,7 +9,7 @@ import os
 
 from threading import Condition
 
-KEY_FILE = "EC2"
+KEY_FILE = "CSKey.pem"
 NONE_PORT = 60001
 RECONFIGURATOR = "52.26.182.238"
 ETHERPAD_FOLDER = "PaxosEtherpad/"
