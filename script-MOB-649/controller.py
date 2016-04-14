@@ -9,9 +9,21 @@ import os
 
 from threading import Condition
 
-KEY_FILE = sys.argv[1]
+KEY_FILE = "EC2"
 NONE_PORT = 60001
 RECONFIGURATOR = "52.26.182.238"
+ETHERPAD_FOLDER = "PaxosEtherpad/"
+LOG_PROPERTIES = ETHERPAD_FOLDER+"logging.properties"
+GP_PROPERTIES = ETHERPAD_FOLDER+"gigapaxos.properties"
+LOG4J_PROPERTIES = ETHERPAD_FOLDER+"log4j.properties"
+JAR = ETHERPAD_FOLDER+"jar/etherpad.jar"
+JVMFLAGS="-ea -Djava.util.logging.config.file="+LOG_PROPERTIES+" -DgigapaxosConfig="+GP_PROPERTIES+" -Dlog4j.configuration="+LOG4J_PROPERTIES
+
+SSL_OPTIONS=' -Djavax.net.ssl.keyStorePassword=qwerty -Djavax.net.ssl.keyStore=conf/keyStore/node100.jks -Djavax.net.ssl.trustStorePassword=qwerty -Djavax.net.ssl.trustStore=conf/keyStore/node100.jks'
+
+COMMAND = "java "+JVMFLAGS+SSL_OPTIONS+" -cp "+JAR+" "
+
+print COMMAND
 
 result = []
 cv = Condition()
@@ -73,7 +85,7 @@ class cmdThread (threading.Thread):
 # This function can be changed in the future, if the model to
 # start the client is changed
 def runClient(host, num_req):
-    cmd = "./PaxosEtherpad/ec2Client.sh etherpad.ReconfigurableEtherpadExpClient "
+    cmd = COMMAND+"etherpad.ReconfigurableEtherpadExpClient "
     cmd += str(num_req)+" "
     cmd += hostToName[host][0]
     cmd += " true > output &"
@@ -81,14 +93,15 @@ def runClient(host, num_req):
     th = cmdThread(host, cmd)
     th.start()
 
+# Do not use script, hard code the command!
 def stopHost(host):
-    cmd = "./PaxosEtherpad/clear.sh &"
+    cmd = "./PaxosEtherpad/clear.sh "
     print cmd
     th = cmdThread(host, cmd)
     th.start()
 
 def startHost(host):
-    cmd = "./PaxosEtherpad/ec2Server.sh start "+hostToName[host][1]+" &"
+    cmd = COMMAND + "edu.umass.cs.reconfiguration.ReconfigurableNode " + hostToName[host][1]+" &"
     print cmd
     th = cmdThread(host, cmd)
     th.start()
@@ -113,7 +126,7 @@ def loadTrace():
     for line in fin:
         line = line[:-1]
         line = line.split(" ")
-        arr.append(line)
+        arr.append((line[0], int(line[1])))
     return arr
 
 def movingAverage(l):
@@ -138,17 +151,23 @@ def restartServers():
     
     for host in hostToName.keys():
         startHost(host)
-    th = cmdThread(RECONFIGURATOR, "./PaxosEtherpad/ec2Server.sh start 900")
+    th = cmdThread(RECONFIGURATOR, COMMAND+"edu.umass.cs.reconfiguration.ReconfigurableNode 900 &")
+    th.start()
+    time.sleep(5)
+
+    th = cmdThread(RECONFIGURATOR, COMMAND+"etherpad.ReconfigurableEtherpadAppClient &")
     th.start()
     time.sleep(1)
 
 def main():
-    # Step 1: prepare
+    # Step 0: prepare
     serverThread().start()
+
+    # Step 1:
+    restartServers()
     
     # Step 2: load trace
     trace = loadTrace()
-    print trace
     
     # Step 3: send requests
     sendRequests(trace)
@@ -157,5 +176,5 @@ def main():
     processResult()
 
 if __name__ == "__main__":
-    runClient("54.67.107.203", 1)
-    #main()
+    #runClient("54.67.107.203", 1)
+    main()
