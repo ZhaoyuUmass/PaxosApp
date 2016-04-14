@@ -41,8 +41,7 @@ public class ReconfigurableEtherpadApp extends AbstractReconfigurablePaxosApp<St
 	
 	private boolean processRequest(AppRequest request,
 			boolean doNotReplyToClient) {
-		
-		this.sendResponse(request);
+				
 		if (request.getServiceName() == null)
 			return true; // no-op
 		if (request.isStop()){
@@ -55,7 +54,10 @@ public class ReconfigurableEtherpadApp extends AbstractReconfigurablePaxosApp<St
 		
 		String val = value.split(delimiter)[1];
 		System.out.println("ready to execute request for pad "+name+"with value "+val);
-		return parseRequest(name, val);
+		parseRequest(name, val);
+		
+		this.sendResponse(request);
+		return true;
 	}
 
 	private boolean parseRequest(String padName, String value){
