@@ -101,6 +101,13 @@ def runClient(host, num_req):
     th = cmdThread(host, cmd)
     th.start()
 
+def runClient(host, num_req):
+    cmd = COMMAND+"etherpad.ReconfigurableEtherpadExpClient "
+    cmd += str(num_req)+" "
+    cmd += hostToName[host][0]
+    cmd += " true > output &"
+
+
 # Do not use script, hard code the command!
 def stopHost(host):
     cmd = "./PaxosEtherpad/clear.sh "
@@ -149,8 +156,8 @@ def processResult():
         yaxis = yaxis + latencies
     xaxis = range(len(yaxis))
     yaxis = movingAverage(yaxis)
-    print xaxis
-    print yaxis    
+    print "xaxis:",xaxis
+    print "yaxis:",yaxis    
         
 def restartServers():
     for host in hostToName.keys():
