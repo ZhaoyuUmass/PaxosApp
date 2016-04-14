@@ -119,7 +119,7 @@ def runClientRMC(host, num_req):
     p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     out, err = p.communicate()
     if err is None:
-        #print out
+        print out
         flag = False
         global result
         lines = out.split("\n")
@@ -173,7 +173,7 @@ def loadTrace():
     return arr
 
 def movingAverage(l):
-    history = l[0]
+    history = l[1]
     arr = []
     for item in l:
         history = item*alpha+history*(1-alpha)
