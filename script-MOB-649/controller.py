@@ -86,7 +86,7 @@ def stopHost(host):
     th.start()
 
 def startHost(host):
-    cmd = "./PaxosEtherpad/ec2Server.sh "+hostToName[host][1]
+    cmd = "./PaxosEtherpad/ec2Server.sh start "+hostToName[host][1]
     th = cmdThread(host, cmd)
     th.start()
 
@@ -135,7 +135,7 @@ def restartServers():
     
     for host in hostToName.keys():
         startHost(host)
-    th = cmdThread(RECONFIGURATOR, "./PaxosEtherpad/ec2Server.sh 900")
+    th = cmdThread(RECONFIGURATOR, "./PaxosEtherpad/ec2Server.sh start 900")
     th.start()
     time.sleep(1)
 
