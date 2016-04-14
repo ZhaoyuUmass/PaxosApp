@@ -36,7 +36,7 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
         print datetime.datetime.now(),"receive data:",self.data,"from ",self.request
         global result
         result.append(self.data)
-        cv.aquire()
+        cv.acquire()
         cv.notify()
         cv.release()
 
@@ -98,7 +98,7 @@ def sendRequests(trace):
         num_req = load[1]
         runClient(host, num_req)
         finished = False
-        cv.aquire()
+        cv.acquire()
         while not finished:            
             cv.wait()
         cv.release()
