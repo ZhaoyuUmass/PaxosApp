@@ -127,12 +127,6 @@ public class ReconfigurableEtherpadAppClient extends ReconfigurableAppClientAsyn
 		
 		Thread.sleep(2000);
 		
-		while(NORMAL_REQUEST <2 && ERROR_REQUEST<1){
-			Thread.sleep(1000);
-		}
-		assert(NORMAL_REQUEST==3);
-		assert(ERROR_REQUEST==2);
-		
 		System.out.println("Experiment is done, reconfiguration acts as expected!");
 		
 		System.exit(0);
