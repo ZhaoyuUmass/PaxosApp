@@ -63,7 +63,7 @@ class cmdThread (threading.Thread):
             ssh.connect(self.host, username = 'ubuntu', key_filename=KEY_FILE)
             ssh.exec_command(self.cmd)
             ssh.close()
-        except e:
+        except Error as e:
             print 'Time out',e
 
 
