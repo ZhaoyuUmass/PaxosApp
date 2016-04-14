@@ -156,5 +156,5 @@ def main():
     processResult()
 
 if __name__ == "__main__":
-    #runClient("54.67.107.203", 1)
-    main()
+    runClient("54.67.107.203", 1)
+    #main()
