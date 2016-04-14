@@ -11,6 +11,7 @@ from threading import Condition
 
 KEY_FILE = sys.argv[1]
 NONE_PORT = 60001
+RECONFIGURATOR = "52.26.182.238"
 
 result = []
 cv = Condition()
@@ -21,7 +22,7 @@ def loadHost():
     for line in fin:
         line = line[:-1]
         line = line.split(" ")
-        dic[line[0]] = line[1]
+        dic[line[0]] = (line[1], line[2])
     print dic
     return dic
 
@@ -61,7 +62,7 @@ class cmdThread (threading.Thread):
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         try:
             ssh.connect(self.host, username = 'ubuntu', key_filename=KEY_FILE)
-            ssh.exec_command(self.cmd)
+            stdin, stdout, stderr = ssh.exec_command(self.cmd)
             ssh.close()
         except:
             print "Unexpected error:", sys.exc_info()[0]
@@ -73,12 +74,21 @@ class cmdThread (threading.Thread):
 def runClient(host, num_req):
     cmd = "./PaxosEtherpad/ec2Client.sh etherpad.ReconfigurableEtherpadExpClient "
     cmd += str(num_req)+" "
-    cmd += hostToName[host]
+    cmd += hostToName[host][0]
     cmd += " true > output &"
     print cmd
     th = cmdThread(host, cmd)
     th.start()
 
+def stopHost(host):
+    cmd = "./PaxosEtherpad/clear.sh"
+    th = cmdThread(host, cmd)
+    th.start()
+
+def startHost(host):
+    cmd = "./PaxosEtherpad/ec2Server.sh "+hostToName[host][1]
+    th = cmdThread(host, cmd)
+    th.start()
 
 def sendRequests(trace):
     for load in trace:
@@ -116,13 +126,27 @@ def processResult():
     print xaxis
     print yaxis    
         
+def restartServers():
+    for host in hostToName.keys():
+        stopHost(host)
+    stopHost(RECONFIGURATOR)
+    
+    Thread.sleep(1)
+    
+    for host in hostToName.keys():
+        startHost(host)
+    th = cmdThread(RECONFIGURATOR, "./PaxosEtherpad/ec2Server.sh 900")
+    th.start()
+    Thread.sleep(1)
 
 def main():
     # Step 0: prepare
     serverThread().start()
 
     # Step 1: restart all the servers
-    
+    restartServers()
+    print "Servers all restart ... "
+    raw_input()
     
     # Step 2: load trace
     trace = loadTrace()
