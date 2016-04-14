@@ -9,7 +9,7 @@ import os
 
 from threading import Condition
 
-KEY_FILE = "EC2"
+KEY_FILE = sys.argv[1]
 NONE_PORT = 60001
 
 result = []
@@ -22,6 +22,7 @@ def loadHost():
         line = line[:-1]
         line = line.split(" ")
         dic[line[0]] = line[1]
+    print dic
     return dic
 
 hostToName = loadHost()
@@ -60,10 +61,10 @@ class cmdThread (threading.Thread):
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         try:
             ssh.connect(self.host, username = 'ubuntu', key_filename=KEY_FILE)
-            stdin, stdout, stderr = ssh.exec_command(self.cmd)
+            ssh.exec_command(self.cmd)
             ssh.close()
-        except:
-            print 'Time out'
+        except e:
+            print 'Time out',e
 
 
 # This function can be changed in the future, if the model to
@@ -72,7 +73,7 @@ def runClient(host, num_req):
     cmd = "./PaxosEtherpad/ec2Client.sh etherpad.ReconfigurableEtherpadExpClient "
     cmd += str(num_req)+" "
     cmd += hostToName[host]
-    cmd += " true"
+    cmd += " true > output &"
     print cmd
     th = cmdThread(host, cmd)
     th.start()
