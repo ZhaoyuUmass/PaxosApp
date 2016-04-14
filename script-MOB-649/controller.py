@@ -63,8 +63,9 @@ class cmdThread (threading.Thread):
             ssh.connect(self.host, username = 'ubuntu', key_filename=KEY_FILE)
             ssh.exec_command(self.cmd)
             ssh.close()
-        except Error as e:
-            print 'Time out',e
+        except:
+            print "Unexpected error:", sys.exc_info()[0]
+            raise
 
 
 # This function can be changed in the future, if the model to
