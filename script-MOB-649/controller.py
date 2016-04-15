@@ -266,7 +266,7 @@ def runPlot(y):
     fout.write(TEMPLATE2)
     fout.close()
 
-    os.system("matlab -nodesktop -r "+M_COMMAND)
+    #os.system("matlab -nodesktop -r "+M_COMMAND)
     
 def main():
     # Step 0: prepare
