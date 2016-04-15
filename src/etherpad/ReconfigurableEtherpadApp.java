@@ -41,7 +41,7 @@ public class ReconfigurableEtherpadApp extends AbstractReconfigurablePaxosApp<St
 	
 	private boolean processRequest(AppRequest request,
 			boolean doNotReplyToClient) {
-				
+		long start = System.currentTimeMillis();		
 		if (request.getServiceName() == null)
 			return true; // no-op
 		if (request.isStop()){
@@ -53,10 +53,11 @@ public class ReconfigurableEtherpadApp extends AbstractReconfigurablePaxosApp<St
 		String value = request.getValue();
 		
 		String val = value.split(delimiter)[1];
-		System.out.println("ready to execute request for pad "+name+"with value "+val);
+		//System.out.println("ready to execute request for pad "+name+"with value "+val);
 		parseRequest(name, val);
 		
 		this.sendResponse(request);
+		System.out.println("Application execution time "+(System.currentTimeMillis() - start)+"ms");
 		return true;
 	}
 
