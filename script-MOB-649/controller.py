@@ -13,14 +13,16 @@ KEY_FILE = sys.argv[1]
 TRACE_FILE = sys.argv[2]
 RESTART = False
 if len(sys.argv)>3:
-    RESTART = bool(sys.argv[3])
+    if sys.argv[3] == "True":
+        RESTART = True
 
 
-alpha = 0.05
+WINDOW_SIZE = 1
 
 NONE_PORT = 60001
 RECONFIGURATOR = "52.26.182.238"
 ETHERPAD_FOLDER = "PaxosEtherpad/"
+
 LOG_PROPERTIES = ETHERPAD_FOLDER+"logging.properties"
 GP_PROPERTIES = ETHERPAD_FOLDER+"gigapaxos.properties"
 LOG4J_PROPERTIES = ETHERPAD_FOLDER+"log4j.properties"
@@ -34,12 +36,14 @@ COMMAND = "java "+JVMFLAGS+SSL_OPTIONS+" -cp "+JAR+" "
 
 ### These constant are used for matlab only
 
-MATLAB_HOME = "/Users/gaozy/Documents/MATLAB/"
 M_COMMAND = "reconfiguration"
 M_FILE = M_COMMAND + ".m"
+
+
 TEMPLATE1 = '''
-plot(y, '-.', 'LineWidth',2);
-xlabel('Timeline(sec)');
+plot(x, y, '-.', x, b,'-', 'LineWidth',2);
+legend('Moving average latency', 'Application latency');
+xlabel('Request');
 ylabel('Moving average of response latency(ms)');
 '''
 
@@ -196,10 +200,10 @@ def avg(arr):
 def movingAverage(l):
     arr = []
     for i in range(len(l)):
-        if i-5 < 0:
+        if i-WINDOW_SIZE < 0:
             begin = 0
         else:
-            begin = i-5
+            begin = i-WINDOW_SIZE
         history = avg(l[begin:i+1])
         #history = item*alpha+history*(1-alpha)
         arr.append(history)
@@ -252,8 +256,10 @@ def runPlot(y):
     x = len(y)+1
     #axis([0 40 0 1000]);
     figureSize = "axis([0 "+str(x)+" 0 "+str(m)+"]);\n"
-    firstLine = "y = "+str(y)+";\n"
+    firstLine = "y = "+str(y)+";\n"+"x="+str(range(len(y)))+";\n"
+    benchMark = "b = ones("+str(len(y))+",1);\n"+"b=b*41;\n"
     fout = open(M_FILE, "w+")
+    fout.write(benchMark)
     fout.write(firstLine)
     fout.write(TEMPLATE1)
     fout.write(figureSize)
