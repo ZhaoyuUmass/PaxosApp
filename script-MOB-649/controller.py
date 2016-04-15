@@ -31,7 +31,25 @@ SSL_OPTIONS=' -Djavax.net.ssl.keyStorePassword=qwerty -Djavax.net.ssl.keyStore=c
 
 COMMAND = "java "+JVMFLAGS+SSL_OPTIONS+" -cp "+JAR+" "
 
-#print COMMAND
+
+### These constant are used for matlab only
+
+MATLAB_HOME = "/Users/gaozy/Documents/MATLAB/"
+M_COMMAND = "reconfiguration"
+M_FILE = M_COMMAND + ".m"
+TEMPLATE1 = '''
+plot(y, '-.', 'LineWidth',2);
+xlabel('Timeline(sec)');
+ylabel('Moving average of response latency(ms)');
+'''
+
+TEMPLATE2 = '''
+set(gca, 'FontName', 'Times New Roman');
+set(gca, 'FontSize', 24);
+grid on;
+
+saveas(gcf,'reconfiguration_etherpad.pdf','pdf');
+'''
 
 
 
@@ -172,12 +190,25 @@ def loadTrace():
         arr.append((line[0], int(line[1])))
     return arr
 
+def avg(arr):
+    return sum(arr)/len(arr)
+
 def movingAverage(l):
-    history = l[1]
     arr = []
-    for item in l:
-        history = item*alpha+history*(1-alpha)
+    for i in range(len(l)):
+        if i-5 < 0:
+            begin = 0
+        else:
+            begin = i-5
+        history = avg(l[begin:i+1])
+        #history = item*alpha+history*(1-alpha)
         arr.append(history)
+    return arr
+
+def smooth(l):
+    arr = []
+    arr = l[2:]
+    arr = arr[:2]+arr
     return arr
 
 def processResult():
@@ -185,12 +216,15 @@ def processResult():
     for item in result:
         latencies = item.split(",")
         latencies = map(int, latencies)
+        latencies = smooth(latencies)
         latencies = movingAverage(latencies)
         yaxis = yaxis + latencies
-    xaxis = range(len(yaxis))
+        
+    #xaxis = range(len(yaxis))
+    #print "xaxis:",xaxis
 
-    print "xaxis:",xaxis
-    print "yaxis:",yaxis    
+    print "yaxis:",yaxis
+    return yaxis
         
 def restartServers():
     for host in hostToName.keys():
@@ -208,9 +242,26 @@ def restartServers():
     
     th = cmdThread(RECONFIGURATOR, COMMAND+"etherpad.ReconfigurableEtherpadAppClient &")
     th.start()
-    time.sleep(1)
+    time.sleep(2)
     print "Create group ... done!"
 
+def runPlot(y):
+    # get the maximal number
+    m = max(y)
+    m += 100
+    x = len(y)+1
+    #axis([0 40 0 1000]);
+    figureSize = "axis([0 "+str(x)+" 0 "+str(m)+"]);\n"
+    firstLine = "y = "+str(y)+";\n"
+    fout = open(M_FILE, "w+")
+    fout.write(firstLine)
+    fout.write(TEMPLATE1)
+    fout.write(figureSize)
+    fout.write(TEMPLATE2)
+    fout.close()
+
+    os.system("matlab -nodesktop -r "+M_COMMAND)
+    
 def main():
     # Step 0: prepare
     #serverThread().start()
@@ -230,7 +281,10 @@ def main():
 
     # Step 4: plot data
     print 'Process the result ...'
-    processResult()
+    y = processResult()
+
+    # Step 5: output .m file and plot figure
+    runPlot(y)
 
 if __name__ == "__main__":
     main()

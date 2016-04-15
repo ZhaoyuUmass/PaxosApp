@@ -59,13 +59,13 @@ public class ReconfigurableEtherpadExpClient extends ReconfigurableAppClientAsyn
 		latencies.add(latency);
 	}
 	
-	 static class MyThreadFactory implements ThreadFactory {
+	static class MyThreadFactory implements ThreadFactory {
 	    	
-	    	public Thread newThread(Runnable r) {
-	    		Thread t = new Thread(r);
-	    	    return t;
-	    	}
-	    }
+    	public Thread newThread(Runnable r) {
+    		Thread t = new Thread(r);
+    	    return t;
+    	}
+	}
 	
 	protected static class Callback implements RequestCallback{
 		
