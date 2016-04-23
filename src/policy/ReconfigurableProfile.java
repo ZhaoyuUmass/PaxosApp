@@ -1,25 +1,22 @@
-package etherpad;
+package policy;
 
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import edu.umass.cs.gigapaxos.PaxosConfig;
 import edu.umass.cs.gigapaxos.interfaces.Request;
-import edu.umass.cs.reconfiguration.examples.AppRequest;
+import edu.umass.cs.nio.nioutils.RTTEstimator;
 import edu.umass.cs.reconfiguration.reconfigurationutils.AbstractDemandProfile;
 import edu.umass.cs.reconfiguration.reconfigurationutils.InterfaceGetActiveIPs;
-import etherpad.FakeLatency;
 
 /**
  * @author gaozy
  *
  */
-public class ReconfigurableEtherpadProfile extends AbstractDemandProfile{
+public class ReconfigurableProfile extends AbstractDemandProfile{
 	private final static int RECONFIGURATION_THRESHOLD = 20;
 	private final static int REPORT_THRESHOLD = 4;
 	private final static String SERVICE_NAME = "service_name";
@@ -27,47 +24,50 @@ public class ReconfigurableEtherpadProfile extends AbstractDemandProfile{
 	private final static String HOST = "host";
 	
 	private Integer numReq = 0;
-	private ReconfigurableEtherpadProfile lastReconfiguredProfile = null;
+	private ReconfigurableProfile lastReconfiguredProfile = null;
 	
-	private FakeLatency latMap = new FakeLatency();
-	private String mostActiveRegion = null;
+	private InetAddress mostActiveRegion = null;
 	
 	
 	/**
 	 * @param name
 	 */
-	public ReconfigurableEtherpadProfile(String name) {
+	public ReconfigurableProfile(String name) {
 		super(name);
 	}
 	
 	/**
 	 * @param nnp
 	 */
-	public ReconfigurableEtherpadProfile(ReconfigurableEtherpadProfile nnp) {
+	public ReconfigurableProfile(ReconfigurableProfile nnp) {
 		super(nnp.name);
 		this.numReq = nnp.numReq;
 		this.mostActiveRegion = nnp.mostActiveRegion;
 	}
 
 	@Override
-	public ReconfigurableEtherpadProfile clone() {
-		return new ReconfigurableEtherpadProfile(this);	
+	public ReconfigurableProfile clone() {
+		return new ReconfigurableProfile(this);	
 	}
 
 	/**
 	 * @param json
 	 * @throws JSONException
 	 */
-	public ReconfigurableEtherpadProfile(JSONObject json) throws JSONException {
+	public ReconfigurableProfile(JSONObject json) throws JSONException {
 		super(json.getString(SERVICE_NAME));
-		this.mostActiveRegion = json.getString(HOST);
+		try {
+			this.mostActiveRegion = InetAddress.getByName(json.getString(HOST));
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
 		this.numReq = json.getInt(NUM_REQ);
 	}
 	
 	
 	@Override
 	public void combine(AbstractDemandProfile dp) {
-		ReconfigurableEtherpadProfile update = (ReconfigurableEtherpadProfile) dp;
+		ReconfigurableProfile update = (ReconfigurableProfile) dp;
 		if( ! update.mostActiveRegion.equals(this.mostActiveRegion)){
 			this.mostActiveRegion = update.mostActiveRegion;
 			this.numReq = update.numReq;
@@ -101,16 +101,11 @@ public class ReconfigurableEtherpadProfile extends AbstractDemandProfile{
 
 	@Override
 	public void register(Request request, InetAddress sender, InterfaceGetActiveIPs nodeConfig) {
-		
-		AppRequest req = (AppRequest) request;
-		String content = req.getValue();
-		String host = content.split(",")[0];
-		
 		if(mostActiveRegion == null ){
-			mostActiveRegion = host;
+			mostActiveRegion = sender;
 			numReq = 0;
-		} else if(!mostActiveRegion.equals(host)){
-			mostActiveRegion = host;
+		} else if(mostActiveRegion == sender){
+			mostActiveRegion = sender;
 			numReq = 0;	
 			
 		}else{
@@ -118,7 +113,7 @@ public class ReconfigurableEtherpadProfile extends AbstractDemandProfile{
 			System.out.println(this+" Recived "+numReq+" requests");
 		}
 		
-		System.out.println("register"+request+" "+host);
+		System.out.println("register"+request+" "+sender);
 		
 	}
 
@@ -131,17 +126,13 @@ public class ReconfigurableEtherpadProfile extends AbstractDemandProfile{
 	@Override
 	public ArrayList<InetAddress> shouldReconfigure(ArrayList<InetAddress> curActives, InterfaceGetActiveIPs nodeConfig) {
 		if(this.numReq >= RECONFIGURATION_THRESHOLD){
-			ArrayList<InetAddress> reconfiguredAddresses = new ArrayList<InetAddress>();
+
 			System.out.println("The most active region is "+mostActiveRegion);
 			
-			ArrayList<String> names = latMap.getClosest(mostActiveRegion);
+			ArrayList<InetAddress> reconfiguredAddresses = new ArrayList<InetAddress>(RTTEstimator.getClosest(mostActiveRegion));
 			
-			System.out.println("Closest names are "+names);
-			for (String name:names){
-				reconfiguredAddresses.add(PaxosConfig.getActives().get(name).getAddress());
-			}
-			
-			System.out.println("reconfigured address set is "+reconfiguredAddresses);
+			System.out.println("Closest names are "+reconfiguredAddresses);
+
 			
 			this.numReq = 0;
 			return reconfiguredAddresses;
@@ -165,10 +156,12 @@ public class ReconfigurableEtherpadProfile extends AbstractDemandProfile{
 		
 	}
 	
+	/*
 	protected static List<String> asSortedList() {
 		Collection<String> c = PaxosConfig.getActives().keySet();
 		List<String> list = new ArrayList<String>(c);
 		java.util.Collections.sort(list);
 		return list;
 	}
+	*/
 }
