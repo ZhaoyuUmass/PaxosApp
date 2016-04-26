@@ -21,7 +21,7 @@ WINDOW_SIZE = 1
 
 NONE_PORT = 60001
 RECONFIGURATOR = "52.26.182.238"
-ETHERPAD_FOLDER = "PaxosEtherpad/"
+ETHERPAD_FOLDER = "PaxosApp/"
 
 LOG_PROPERTIES = ETHERPAD_FOLDER+"logging.properties"
 GP_PROPERTIES = ETHERPAD_FOLDER+"gigapaxos.properties"
@@ -123,21 +123,20 @@ class cmdThread (threading.Thread):
 # This function can be changed in the future, if the model to
 # start the client is changed
 def runClient(host, num_req):
-    cmd = "./jdk1.8.0_92/bin/"+COMMAND+"etherpad.ReconfigurableEtherpadExpClient "
-    cmd += str(num_req)+" "
-    cmd += hostToName[host][0]
+    cmd = COMMAND+"etherpad.ReconfigurableEtherpadExpClient "
+    cmd += str(num_req)
+    #cmd += hostToName[host][0]
     cmd += " true > output &"
     print cmd
     th = cmdThread(host, cmd)
     th.start()
 
 def runClientRMC(host, num_req):
-    print "Start sending "+str(num_req)+" request to "+host,hostToName[host]
-    cmd = COMMAND+"etherpad.ReconfigurableEtherpadExpClient "
-    cmd += str(num_req)+" "
-    cmd += hostToName[host][0]
-    cmd += " false"
-    cmd = "ssh -i "+ KEY_FILE +" ubuntu@"+host+" "+cmd
+    print "Start sending "+str(num_req)+" request to "+host
+    cmd = "./jdk1.8.0_92/bin/"+COMMAND+"etherpad.ReconfigurableEtherpadExpClient "
+    cmd += str(num_req)
+    cmd = "ssh -i id_rsa umass_nameservice@"+host+" "+cmd
+    print cmd
     p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     out, err = p.communicate()
     if err is None:
@@ -162,7 +161,7 @@ def runClientRMC(host, num_req):
 
 # Do not use script, hard code the command!
 def stopHost(host):
-    cmd = "./PaxosEtherpad/clear.sh "
+    cmd = "./PaxosApp/clear.sh "
     #print cmd
     th = cmdThread(host, cmd)
     th.start()
@@ -181,7 +180,7 @@ def sendRequests(trace):
         if not sent:
             print "Experiment failed"
             break
-        print "this round is done for host "+host,hostToName[host]
+        print "this round is done for host "+host
     print "Send all requests!"
 
 
@@ -267,7 +266,7 @@ def runPlot(y):
     fout.write(TEMPLATE2)
     fout.close()
 
-    #os.system("matlab -nodesktop -r "+M_COMMAND)
+    os.system("matlab -nodesktop -r "+M_COMMAND)
     
 def main():
     # Step 0: prepare
