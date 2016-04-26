@@ -3,6 +3,7 @@ package policy;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Set;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -128,7 +129,14 @@ public class ReconfigurableProfile extends AbstractDemandProfile{
 		if(this.numReq >= RECONFIGURATION_THRESHOLD){
 
 			System.out.println("The most active region is "+mostActiveRegion);
-			ArrayList<InetAddress> reconfiguredAddresses = new ArrayList<InetAddress>(RTTEstimator.getClosest(mostActiveRegion));			
+			Set<InetAddress> addresses = null;
+			try{
+				addresses = RTTEstimator.getClosest(mostActiveRegion);
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+			System.out.println("result get from getClosest is:"+addresses);
+			ArrayList<InetAddress> reconfiguredAddresses = new ArrayList<InetAddress>(addresses);			
 			System.out.println("Closest names are "+reconfiguredAddresses);
 			
 			this.numReq = 0;
