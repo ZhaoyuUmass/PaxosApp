@@ -101,10 +101,12 @@ public class ReconfigurableProfile extends AbstractDemandProfile{
 	public void register(Request request, InetAddress sender, InterfaceGetActiveIPs nodeConfig) {
 		Set<InetAddress> closest = RTTEstimator.getClosest(sender);
 		String closestAddress = rearrange(closest);
+		System.out.println("Closest replicas returned by RTTEstimator are:"+closest);
+		
 		if(mostActiveRegions == null ){
 			mostActiveRegions = closestAddress;
 			numReq = 0;
-		} else if(mostActiveRegions != closestAddress){
+		} else if(! mostActiveRegions.equals(closestAddress)){
 			mostActiveRegions = closestAddress;
 			numReq = 0;			
 		}else{
