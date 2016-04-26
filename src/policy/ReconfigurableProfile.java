@@ -3,6 +3,7 @@ package policy;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import org.json.JSONException;
@@ -27,8 +28,8 @@ public class ReconfigurableProfile extends AbstractDemandProfile{
 	private Integer numReq = 0;
 	private ReconfigurableProfile lastReconfiguredProfile = null;
 	
-	private InetAddress mostActiveRegion = null;
-	
+	//private InetAddress mostActiveRegion = null;
+	private String mostActiveRegions = null;
 	
 	/**
 	 * @param name
@@ -43,7 +44,7 @@ public class ReconfigurableProfile extends AbstractDemandProfile{
 	public ReconfigurableProfile(ReconfigurableProfile nnp) {
 		super(nnp.name);
 		this.numReq = nnp.numReq;
-		this.mostActiveRegion = nnp.mostActiveRegion;
+		this.mostActiveRegions = nnp.mostActiveRegions;
 	}
 
 	@Override
@@ -57,11 +58,7 @@ public class ReconfigurableProfile extends AbstractDemandProfile{
 	 */
 	public ReconfigurableProfile(JSONObject json) throws JSONException {
 		super(json.getString(SERVICE_NAME));
-		try {
-			this.mostActiveRegion = InetAddress.getByName(json.getString(HOST));
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		}
+		this.mostActiveRegions = json.getString(HOST);
 		this.numReq = json.getInt(NUM_REQ);
 	}
 	
@@ -69,8 +66,8 @@ public class ReconfigurableProfile extends AbstractDemandProfile{
 	@Override
 	public void combine(AbstractDemandProfile dp) {
 		ReconfigurableProfile update = (ReconfigurableProfile) dp;
-		if( ! update.mostActiveRegion.equals(this.mostActiveRegion)){
-			this.mostActiveRegion = update.mostActiveRegion;
+		if( ! update.mostActiveRegions.equals(this.mostActiveRegions)){
+			this.mostActiveRegions = update.mostActiveRegions;
 			this.numReq = update.numReq;
 		} else{
 			this.numReq = this.numReq + update.numReq;
@@ -86,7 +83,7 @@ public class ReconfigurableProfile extends AbstractDemandProfile{
 		try {
 			json.put(SERVICE_NAME, this.name);
 			json.put(NUM_REQ, REPORT_THRESHOLD+1);
-			json.put(HOST, this.mostActiveRegion.getHostAddress());
+			json.put(HOST, mostActiveRegions);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -102,13 +99,14 @@ public class ReconfigurableProfile extends AbstractDemandProfile{
 
 	@Override
 	public void register(Request request, InetAddress sender, InterfaceGetActiveIPs nodeConfig) {
-		if(mostActiveRegion == null ){
-			mostActiveRegion = sender;
+		Set<InetAddress> closest = RTTEstimator.getClosest(sender);
+		String closestAddress = rearrange(closest);
+		if(mostActiveRegions == null ){
+			mostActiveRegions = closestAddress;
 			numReq = 0;
-		} else if(mostActiveRegion == sender){
-			mostActiveRegion = sender;
-			numReq = 0;	
-			
+		} else if(mostActiveRegions != closestAddress){
+			mostActiveRegions = closestAddress;
+			numReq = 0;			
 		}else{
 			numReq++;
 			System.out.println(this+" Recived "+numReq+" requests");
@@ -121,22 +119,24 @@ public class ReconfigurableProfile extends AbstractDemandProfile{
 	@Override
 	public void reset() {
 		numReq = 0;
-		mostActiveRegion = null;
+		mostActiveRegions = null;
 	}
 	
 	@Override
 	public ArrayList<InetAddress> shouldReconfigure(ArrayList<InetAddress> curActives, InterfaceGetActiveIPs nodeConfig) {
 		if(this.numReq >= RECONFIGURATION_THRESHOLD){
 
-			System.out.println("The most active region is "+mostActiveRegion);
-			Set<InetAddress> addresses = null;
-			try{
-				addresses = RTTEstimator.getClosest(mostActiveRegion);
-			}catch(Exception e){
-				e.printStackTrace();
+			System.out.println("The most active region is "+mostActiveRegions);
+			
+			ArrayList<InetAddress> reconfiguredAddresses = new ArrayList<InetAddress>();
+			String[] addr = mostActiveRegions.split(",");
+			for (int i=0; i<addr.length; i++){
+				try {
+					reconfiguredAddresses.add( InetAddress.getByName(addr[i]) );
+				} catch (UnknownHostException e) {
+					e.printStackTrace();
+				}
 			}
-			System.out.println("result get from getClosest is:"+addresses);
-			ArrayList<InetAddress> reconfiguredAddresses = new ArrayList<InetAddress>(addresses);			
 			System.out.println("Closest names are "+reconfiguredAddresses);
 			
 			this.numReq = 0;
@@ -159,6 +159,26 @@ public class ReconfigurableProfile extends AbstractDemandProfile{
 		}
 		return false;
 		
+	}
+	
+	private String rearrange(Set<InetAddress> address){
+		assert( !address.isEmpty() );
+		
+		ArrayList<String> list = new ArrayList<String>();
+		for (InetAddress addr:address){
+			list.add(addr.toString());
+		}
+		
+		
+		java.util.Collections.sort(list);
+		
+		String result = "";
+		for(String addr:list){
+			result = result + addr + ",";
+		}
+		result = result.substring(0, result.length()-1);
+		System.out.println(result);
+		return result;
 	}
 	
 	/*
