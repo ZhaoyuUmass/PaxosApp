@@ -168,7 +168,7 @@ public class ReconfigurableProfile extends AbstractDemandProfile{
 		
 		ArrayList<String> list = new ArrayList<String>();
 		for (InetAddress addr:address){
-			list.add(addr.toString());
+			list.add(addr.getHostAddress().toString());
 		}
 		
 		
