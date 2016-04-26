@@ -31,7 +31,7 @@ JVMFLAGS="-ea -Djava.util.logging.config.file="+LOG_PROPERTIES+" -DgigapaxosConf
 
 SSL_OPTIONS=' -Djavax.net.ssl.keyStorePassword=qwerty -Djavax.net.ssl.keyStore=conf/keyStore/node100.jks -Djavax.net.ssl.trustStorePassword=qwerty -Djavax.net.ssl.trustStore=conf/keyStore/node100.jks'
 
-COMMAND = "./jdk1.8.0_92/bin/java "+JVMFLAGS+SSL_OPTIONS+" -cp "+JAR+" "
+COMMAND = "java "+JVMFLAGS+SSL_OPTIONS+" -cp "+JAR+" "
 
 
 ### These constant are used for matlab only
@@ -123,7 +123,7 @@ class cmdThread (threading.Thread):
 # This function can be changed in the future, if the model to
 # start the client is changed
 def runClient(host, num_req):
-    cmd = COMMAND+"etherpad.ReconfigurableEtherpadExpClient "
+    cmd = "./jdk1.8.0_92/bin/"+COMMAND+"etherpad.ReconfigurableEtherpadExpClient "
     cmd += str(num_req)+" "
     cmd += hostToName[host][0]
     cmd += " true > output &"

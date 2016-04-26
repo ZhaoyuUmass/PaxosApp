@@ -34,13 +34,13 @@ import edu.umass.cs.reconfiguration.reconfigurationutils.RequestParseException;
  */
 public class ReconfigurableEtherpadExpClient extends ReconfigurableAppClientAsync{
 	private static int NUM_REQ = 0;
-	private static String HOST_REGION = null;
-	private static String HOST_NAME = null;
+	//private static String HOST_REGION = null;
+	//private static String HOST_NAME = null;
 	// service name is also the pad name
 	private final static String serviceName = "ReconfigurableEtherpadApp0";
 	private final static int NUM_THREAD = 10;
 	private final static int TIMEOUT = 2000;
-	private final static int REQ_LENTGH = 130;
+	private final static int REQ_LENTGH = 100;
 	
 	private static ReconfigurableEtherpadExpClient client;	
 	private static ThreadPoolExecutor executorPool = new ThreadPoolExecutor(NUM_THREAD, NUM_THREAD, 0, TimeUnit.SECONDS, 
@@ -105,7 +105,7 @@ public class ReconfigurableEtherpadExpClient extends ReconfigurableAppClientAsyn
 			
 			try {
 				System.out.println("Send request "+received);
-				client.sendRequest(new AppRequest(serviceName, HOST_NAME+","+nextString(),
+				client.sendRequest(new AppRequest(serviceName, nextString(),
 						AppRequest.PacketType.DEFAULT_APP_REQUEST, false)
 						, new Callback(System.currentTimeMillis(), obj));
 			} catch (IOException e) {
@@ -129,20 +129,9 @@ public class ReconfigurableEtherpadExpClient extends ReconfigurableAppClientAsyn
 	}
 
 	public static void main(String[] args) throws IOException, InterruptedException{
-		//FIXME: remove this hard-coded part
-		String[] hosts = {"california", "virginia", "ireland", "sydney", "tokyo"};
-		HashMap<String, String> hostToName = new HashMap<String, String>();
-		
-		assert(hosts.length == PaxosConfig.getActives().keySet().size());
-		
 		boolean flag = false;
-		int i = 0;
-		for(String name:PaxosConfig.getActives().keySet()){
-			hostToName.put(hosts[i], name);
-			i++;
-		}
 		
-		if(args.length < 2){
+		if(args.length < 1){
 			System.out.println("Please enter the parameters as: #req host_region");
 			System.exit(0);
 		}else{
@@ -152,18 +141,8 @@ public class ReconfigurableEtherpadExpClient extends ReconfigurableAppClientAsyn
 				System.out.println("Please enter the parameter number of request as an integer.");
 				System.exit(0);
 			}
-			HOST_REGION = args[1].toLowerCase();
-			if(!hostToName.containsKey(HOST_REGION)){
-				System.out.println("Please make sure the parameter host region is one of "+hosts);
-				System.exit(0);
-			}
-			if(args.length == 3){
-				//flag = Boolean.parseBoolean(args[2]);
-			}
 		}
 		
-		HOST_NAME = hostToName.get(HOST_REGION);
-		assert(HOST_NAME != null);
 		
 		client = new ReconfigurableEtherpadExpClient();
 		executorPool.prestartAllCoreThreads();

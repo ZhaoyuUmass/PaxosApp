@@ -52,9 +52,8 @@ public class ReconfigurableEtherpadApp extends AbstractReconfigurablePaxosApp<St
 		String name = request.getServiceName();
 		String value = request.getValue();
 		
-		String val = value.split(delimiter)[1];
 		//System.out.println("ready to execute request for pad "+name+"with value "+val);
-		parseRequest(name, val);
+		parseRequest(name, value);
 		
 		this.sendResponse(request);
 		System.out.println("Application execution time "+(System.currentTimeMillis() - start)+"ms");
