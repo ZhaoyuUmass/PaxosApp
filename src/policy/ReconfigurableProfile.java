@@ -85,7 +85,7 @@ public class ReconfigurableProfile extends AbstractDemandProfile{
 		try {
 			json.put(SERVICE_NAME, this.name);
 			json.put(NUM_REQ, REPORT_THRESHOLD+1);
-			json.put(HOST, this.mostActiveRegion);
+			json.put(HOST, this.mostActiveRegion.getHostAddress());
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
