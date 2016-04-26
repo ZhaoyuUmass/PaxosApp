@@ -158,7 +158,7 @@ public class ReconfigurableEtherpadExpClient extends ReconfigurableAppClientAsyn
 				System.exit(0);
 			}
 			if(args.length == 3){
-				flag = Boolean.parseBoolean(args[2]);
+				//flag = Boolean.parseBoolean(args[2]);
 			}
 		}
 		

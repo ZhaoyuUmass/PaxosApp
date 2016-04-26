@@ -128,11 +128,8 @@ public class ReconfigurableProfile extends AbstractDemandProfile{
 		if(this.numReq >= RECONFIGURATION_THRESHOLD){
 
 			System.out.println("The most active region is "+mostActiveRegion);
-			
-			ArrayList<InetAddress> reconfiguredAddresses = new ArrayList<InetAddress>(RTTEstimator.getClosest(mostActiveRegion));
-			
+			ArrayList<InetAddress> reconfiguredAddresses = new ArrayList<InetAddress>(RTTEstimator.getClosest(mostActiveRegion));			
 			System.out.println("Closest names are "+reconfiguredAddresses);
-
 			
 			this.numReq = 0;
 			return reconfiguredAddresses;

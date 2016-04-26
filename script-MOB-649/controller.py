@@ -31,7 +31,7 @@ JVMFLAGS="-ea -Djava.util.logging.config.file="+LOG_PROPERTIES+" -DgigapaxosConf
 
 SSL_OPTIONS=' -Djavax.net.ssl.keyStorePassword=qwerty -Djavax.net.ssl.keyStore=conf/keyStore/node100.jks -Djavax.net.ssl.trustStorePassword=qwerty -Djavax.net.ssl.trustStore=conf/keyStore/node100.jks'
 
-COMMAND = "java "+JVMFLAGS+SSL_OPTIONS+" -cp "+JAR+" "
+COMMAND = "./jdk1.8.0_92/bin/java "+JVMFLAGS+SSL_OPTIONS+" -cp "+JAR+" "
 
 
 ### These constant are used for matlab only
@@ -248,6 +248,7 @@ def restartServers():
     th.start()
     time.sleep(2)
     print "Create group ... done!"
+    raw_input()
 
 def runPlot(y):
     # get the maximal number
