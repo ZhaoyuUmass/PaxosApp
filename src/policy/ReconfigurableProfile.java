@@ -24,6 +24,7 @@ public class ReconfigurableProfile extends AbstractDemandProfile{
 	private final static String SERVICE_NAME = "service_name";
 	private final static String NUM_REQ = "num_request";
 	private final static String HOST = "host";
+	private final static int GROUP_SIZE = 2;
 	
 	private Integer numReq = 0;
 	private ReconfigurableProfile lastReconfiguredProfile = null;
