@@ -22,9 +22,9 @@ public class MySQL_TEST {
 	
 	public static void main(String[] args) throws SQLException, ClassNotFoundException, IOException, InterruptedException{
 		Class.forName("com.mysql.jdbc.Driver");
-		String command = "/bin/bash -c mysql -u " + USER + " --password=" + PASSWORD
-				 + " < " + filePath;
-		Process runtimeProcess = Runtime.getRuntime().exec(command);
+		String command = "mysql -u " + USER + " --password=" + PASSWORD
+				 + " feedback < " + filePath;
+		Process runtimeProcess = Runtime.getRuntime().exec(new String[] { "/bin/bash", "-c", command });
 		int processComplete = runtimeProcess.waitFor();
 		
 		conn = DriverManager.getConnection(DB_URL,USER,PASSWORD);
