@@ -116,6 +116,8 @@ implements Replicable, Reconfigurable, ClientMessenger{
 	@Override
 	public String checkpoint(String name) {
 		StringBuilder builder = new StringBuilder();
+		builder.append("USE "+DB_NAME+";\n");
+		
 		String executeCmd = "mysqldump -u" + USER + " --password=" + PASSWORD + " " + DB_NAME+" "+name;
 		try {
 			Process proc = Runtime.getRuntime().exec(executeCmd);
