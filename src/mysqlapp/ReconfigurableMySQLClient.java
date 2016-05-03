@@ -129,7 +129,7 @@ public class ReconfigurableMySQLClient extends ReconfigurableAppClientAsync {
 	
 	
 	private static void sendMySQLReqeust(ReconfigurableMySQLClient client){
-		String drop_table = "DROP TABLE IF EXISTS salary;";
+		String drop_table = "DROP TABLE IF EXISTS salary";
 		Future<Boolean> future = executorPool.submit(new RequestRunnable(drop_table));
 		try {
 			future.get(TIMEOUT, TimeUnit.MILLISECONDS);
@@ -137,7 +137,7 @@ public class ReconfigurableMySQLClient extends ReconfigurableAppClientAsync {
 			e.printStackTrace();
 		}
 		
-		String create_table = "CREATE TABLE salary (id INTEGER not NULL, salary INTEGER, PRIMARY KEY ( id ));";
+		String create_table = "CREATE TABLE salary (id INTEGER not NULL, salary INTEGER, PRIMARY KEY ( id ))";
 		future = executorPool.submit(new RequestRunnable(create_table));
 		try {
 			future.get(TIMEOUT, TimeUnit.MILLISECONDS);
@@ -187,7 +187,7 @@ public class ReconfigurableMySQLClient extends ReconfigurableAppClientAsync {
 		
 		System.out.println("Actives are :"+PaxosConfig.getActives());
 		client.sendRequest(new CreateServiceName(serviceName, 
-				"CREATE TABLE salary (id INTEGER not NULL, salary INTEGER, PRIMARY KEY ( id ));"),
+				"CREATE TABLE salary (id INTEGER not NULL, salary INTEGER, PRIMARY KEY ( id ))"),
 				new RequestCallback() {
 
 					@Override

@@ -54,6 +54,7 @@ implements Replicable, Reconfigurable, ClientMessenger{
 	 * 
 	 */
 	public ReconfigurableMySQLApp() throws ClassNotFoundException, SQLException{
+		super();
 		Class.forName("com.mysql.jdbc.Driver");
 		conn = DriverManager.getConnection(DB_URL,USER,PASSWORD);
 		stmt = conn.createStatement();
