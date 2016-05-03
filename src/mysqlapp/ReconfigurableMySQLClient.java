@@ -187,7 +187,7 @@ public class ReconfigurableMySQLClient extends ReconfigurableAppClientAsync {
 		
 		System.out.println("Actives are :"+PaxosConfig.getActives());
 		client.sendRequest(new CreateServiceName(serviceName, 
-				"CREATE TABLE salary (id INTEGER not NULL, salary INTEGER, PRIMARY KEY ( id ))"),
+				""),
 				new RequestCallback() {
 
 					@Override

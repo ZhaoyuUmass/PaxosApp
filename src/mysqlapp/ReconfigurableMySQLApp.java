@@ -169,7 +169,7 @@ implements Replicable, Reconfigurable, ClientMessenger{
 			try {
 				Process proc = Runtime.getRuntime().exec(executeCmd);
 				int processComplete = proc.waitFor();
-
+				System.out.println("database path has been restored.");
 			} catch (IOException e) {
 				e.printStackTrace();
 			} catch (InterruptedException e) {
@@ -177,7 +177,7 @@ implements Replicable, Reconfigurable, ClientMessenger{
 			}
 			
 			
-			f.delete();
+			//f.delete();
 		}
 		
 		return true;
