@@ -1,4 +1,4 @@
-package mysql;
+package mysqlapp;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -63,6 +63,8 @@ implements Replicable, Reconfigurable, ClientMessenger{
 		while(res.next()){
 			tables.add(res.getString("TABLE_NAME"));
 		}
+		
+		System.out.println(" >>>>>>>>>>>>>>>>>> Connection initialized!");
 	}
 	
 	@Override
@@ -88,8 +90,11 @@ implements Replicable, Reconfigurable, ClientMessenger{
 			System.out.println(this+": received stop msg "+request);
 			return true;
 		}
-				
+		
+		System.out.println(this+": received "+request);
+		
 		String sql = request.getValue();
+		System.out.println("Command is:"+sql);
 		
 		try {
 			stmt.execute(sql);

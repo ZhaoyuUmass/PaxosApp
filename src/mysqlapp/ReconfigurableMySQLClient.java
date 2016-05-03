@@ -1,4 +1,4 @@
-package mysql;
+package mysqlapp;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,6 +24,7 @@ import edu.umass.cs.reconfiguration.examples.AppRequest;
 import edu.umass.cs.reconfiguration.examples.noopsimple.NoopApp;
 import edu.umass.cs.reconfiguration.reconfigurationpackets.CreateServiceName;
 import edu.umass.cs.reconfiguration.reconfigurationutils.RequestParseException;
+import mysqlapp.ReconfigurableMySQLApp;
 
 /**
  * @author gaozy
@@ -125,7 +126,7 @@ public class ReconfigurableMySQLClient extends ReconfigurableAppClientAsync {
 	}
 	
 	
-	private static void sendMySQLReqeust(ReconfigurableMySQLClient client, String name) throws IOException, InterruptedException, ExecutionException, TimeoutException{
+	private static void sendMySQLReqeust(ReconfigurableMySQLClient client) throws IOException, InterruptedException, ExecutionException, TimeoutException{
 		String drop_table = "DROP TABLE IF EXISTS salary;";
 		Future<Boolean> future = executorPool.submit(new RequestRunnable(drop_table));
 		future.get(TIMEOUT, TimeUnit.MICROSECONDS);
@@ -182,7 +183,7 @@ public class ReconfigurableMySQLClient extends ReconfigurableAppClientAsync {
 						}
 						
 						try {
-							sendMySQLReqeust(client, serviceName);
+							sendMySQLReqeust(client);
 						} catch (IOException e) {
 							e.printStackTrace();
 						} catch (InterruptedException e) {
