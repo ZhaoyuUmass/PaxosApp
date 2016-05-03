@@ -54,7 +54,7 @@ implements Replicable, Reconfigurable, ClientMessenger{
 	 * 
 	 */
 	public ReconfigurableMySQLApp() throws ClassNotFoundException, SQLException{
-		super();
+	
 		Class.forName("com.mysql.jdbc.Driver");
 		conn = DriverManager.getConnection(DB_URL,USER,PASSWORD);
 		stmt = conn.createStatement();
@@ -80,7 +80,7 @@ implements Replicable, Reconfigurable, ClientMessenger{
 		default:
 			break;
 		}		
-		return false;
+		return true;
 	}
 	
 	private boolean processRequest(AppRequest request) {
