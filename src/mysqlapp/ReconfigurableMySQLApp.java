@@ -126,7 +126,7 @@ implements Replicable, Reconfigurable, ClientMessenger{
 			BufferedReader br = new BufferedReader(new InputStreamReader(proc.getInputStream()));
 			String line = "";
 			while ((line = br.readLine()) != null) {
-			    builder.append(line);
+			    builder.append(line+"\n");
 			}
 			br.close();
 		} catch (IOException e) {
@@ -169,7 +169,7 @@ implements Replicable, Reconfigurable, ClientMessenger{
 			try {
 				Process proc = Runtime.getRuntime().exec(executeCmd);
 				int processComplete = proc.waitFor();
-				System.out.println("database path has been restored.");
+				System.out.println("database has been restored.");
 			} catch (IOException e) {
 				e.printStackTrace();
 			} catch (InterruptedException e) {
