@@ -134,11 +134,7 @@ implements Replicable, Reconfigurable, ClientMessenger{
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		return builder.toString();
-	}
-
-	@Override
-	public boolean restore(String name, String state) {
+		
 		// drop table first
 		try {
 			stmt.execute("DROP TABLE IF EXISTS "+name);
@@ -146,6 +142,13 @@ implements Replicable, Reconfigurable, ClientMessenger{
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		
+		return builder.toString();
+	}
+
+	@Override
+	public boolean restore(String name, String state) {
+		
 		if (state != null){
 			/**
 			 * write into a file and load it into mysql
@@ -166,7 +169,7 @@ implements Replicable, Reconfigurable, ClientMessenger{
 			try {
 				Process proc = Runtime.getRuntime().exec(executeCmd);
 				int processComplete = proc.waitFor();
-				assert(processComplete == 0);
+
 			} catch (IOException e) {
 				e.printStackTrace();
 			} catch (InterruptedException e) {
