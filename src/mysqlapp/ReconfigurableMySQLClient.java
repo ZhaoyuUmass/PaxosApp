@@ -65,17 +65,18 @@ public class ReconfigurableMySQLClient extends ReconfigurableAppClientAsync {
 	
 	private static class RequestRunnable implements Callable<Boolean>{
 		Object obj = new Object();
-		String sql;
+		String sql = "";
 		
 		RequestRunnable(String sql){
 			this.sql = sql;
+			System.out.println("SQL command is:"+sql);
 		}
 		
 		@Override
 		public Boolean call() throws Exception {
 			
 			try {
-				System.out.println("Send request "+received);
+				System.out.println("Send request "+received+" to "+serviceName);
 				client.sendRequest(new AppRequest(serviceName, this.sql,
 						AppRequest.PacketType.DEFAULT_APP_REQUEST, false)
 						, new MySQLCallback(System.currentTimeMillis(), obj));
@@ -83,7 +84,8 @@ public class ReconfigurableMySQLClient extends ReconfigurableAppClientAsync {
 				e.printStackTrace();
 			}
 			synchronized(obj){
-				obj.wait();
+				received++;
+				obj.wait();			
 			}
 			return true;
 		}
@@ -126,14 +128,22 @@ public class ReconfigurableMySQLClient extends ReconfigurableAppClientAsync {
 	}
 	
 	
-	private static void sendMySQLReqeust(ReconfigurableMySQLClient client) throws IOException, InterruptedException, ExecutionException, TimeoutException{
+	private static void sendMySQLReqeust(ReconfigurableMySQLClient client){
 		String drop_table = "DROP TABLE IF EXISTS salary;";
 		Future<Boolean> future = executorPool.submit(new RequestRunnable(drop_table));
-		future.get(TIMEOUT, TimeUnit.MICROSECONDS);
+		try {
+			future.get(TIMEOUT, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+			e.printStackTrace();
+		}
 		
 		String create_table = "CREATE TABLE salary (id INTEGER not NULL, salary INTEGER, PRIMARY KEY ( id ));";
 		future = executorPool.submit(new RequestRunnable(create_table));
-		future.get(TIMEOUT, TimeUnit.MICROSECONDS);
+		try {
+			future.get(TIMEOUT, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+			e.printStackTrace();
+		}
 		
 		System.out.println("Start sending "+NUM_REQ+" requests...");
 		for (int i=0; i<NUM_REQ; i++){
@@ -141,6 +151,12 @@ public class ReconfigurableMySQLClient extends ReconfigurableAppClientAsync {
 			int salary = rand.nextInt(1000);
 			String insert_record = "INSERT INTO salary (id, salary) VALUES ("+id+","+salary+")";
 			future = executorPool.submit(new RequestRunnable(insert_record));
+			
+			try {
+				future.get(TIMEOUT, TimeUnit.MILLISECONDS);
+			} catch (InterruptedException | ExecutionException | TimeoutException e) {
+				e.printStackTrace();
+			}
 		}
 		
 		
@@ -164,13 +180,14 @@ public class ReconfigurableMySQLClient extends ReconfigurableAppClientAsync {
 		return NoopApp.staticGetRequestTypes();
 	}
 	
-	public static void main(String[] args) throws IOException{
+	public static void main(String[] args) throws IOException, InterruptedException{
 		NUM_REQ = Integer.parseInt(args[0]);
 		
-		final ReconfigurableMySQLClient client = new ReconfigurableMySQLClient();
+		client = new ReconfigurableMySQLClient();
 		
 		System.out.println("Actives are :"+PaxosConfig.getActives());
-		client.sendRequest(new CreateServiceName(serviceName, ""),
+		client.sendRequest(new CreateServiceName(serviceName, 
+				"CREATE TABLE salary (id INTEGER not NULL, salary INTEGER, PRIMARY KEY ( id ));"),
 				new RequestCallback() {
 
 					@Override
@@ -182,19 +199,19 @@ public class ReconfigurableMySQLClient extends ReconfigurableAppClientAsync {
 							e1.printStackTrace();
 						}
 						
-						try {
-							sendMySQLReqeust(client);
-						} catch (IOException e) {
-							e.printStackTrace();
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						} catch (ExecutionException e) {
-							e.printStackTrace();
-						} catch (TimeoutException e) {
-							e.printStackTrace();
-						}
+
+						sendMySQLReqeust(client);
+						
 						
 					}
 				});
+		
+		while(latencies.size() < NUM_REQ){
+			System.out.println("received : "+latencies.size());
+			Thread.sleep(1000);
+		}
+		
+		System.exit(0);
+		
 	}
 }
