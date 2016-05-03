@@ -1,5 +1,6 @@
 package scratch;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -15,15 +16,21 @@ public class MySQL_TEST {
 	static final String USER = "root";
 	static final String PASSWORD = "sd86787439";
 	
+	static final String filePath = "ReconfigurableMySQLApp0.sql";
 	static Connection conn = null;
 	static Statement stmt = null;
 	
-	public static void main(String[] args) throws SQLException, ClassNotFoundException{
+	public static void main(String[] args) throws SQLException, ClassNotFoundException, IOException, InterruptedException{
 		Class.forName("com.mysql.jdbc.Driver");
+		String command = "mysql -u " + USER + " --password=" + PASSWORD
+				 + " < " + filePath;
+		Process runtimeProcess = Runtime.getRuntime().exec(command);
+		int processComplete = runtimeProcess.waitFor();
 		
 		conn = DriverManager.getConnection(DB_URL,USER,PASSWORD);
 		stmt = conn.createStatement();
 		
+		/*
 		String sql = "DROP TABLE IF EXISTS salary";
 		stmt.execute(sql);
 		
@@ -34,5 +41,6 @@ public class MySQL_TEST {
 		
 		sql = "INSERT INTO salary (id, salary) VALUES (0, 0)";
 		stmt.execute(sql);
+		*/
 	}
 }

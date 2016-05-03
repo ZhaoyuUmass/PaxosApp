@@ -46,7 +46,7 @@ implements Replicable, Reconfigurable, ClientMessenger{
 	Connection conn = null;
 	Statement stmt = null;
 	
-	ArrayList<String> tables = new ArrayList<String>();
+	//ArrayList<String> tables = new ArrayList<String>();
 	
 	/**
 	 * @throws ClassNotFoundException 
@@ -62,7 +62,7 @@ implements Replicable, Reconfigurable, ClientMessenger{
 		DatabaseMetaData meta = conn.getMetaData();
 		ResultSet res = meta.getTables(null, null, null, null);
 		while(res.next()){
-			tables.add(res.getString("TABLE_NAME"));
+			//tables.add(res.getString("TABLE_NAME"));
 		}
 		
 		System.out.println(" >>>>>>>>>>>>>>>>>> Connection initialized!");
@@ -75,7 +75,6 @@ implements Replicable, Reconfigurable, ClientMessenger{
 	
 	@Override
 	public boolean execute(Request request, boolean doNotReplyToClient) {
-		System.out.println(this+": received "+request);
 		
 		if (request.toString().equals(Request.NO_OP)){
 			return true;
@@ -102,7 +101,6 @@ implements Replicable, Reconfigurable, ClientMessenger{
 		System.out.println(this+": received "+request);
 		
 		String sql = request.getValue();
-		System.out.println("Command is:"+sql);
 		
 		try {
 			stmt.execute(sql);
@@ -118,7 +116,7 @@ implements Replicable, Reconfigurable, ClientMessenger{
 	@Override
 	public String checkpoint(String name) {
 		StringBuilder builder = new StringBuilder();
-		String executeCmd = "mysqldump -u" + USER + " --password=" + PASSWORD + " --database " + DB_NAME;
+		String executeCmd = "mysqldump -u" + USER + " --password=" + PASSWORD + " " + DB_NAME+" "+name;
 		try {
 			Process proc = Runtime.getRuntime().exec(executeCmd);
 			int processComplete = proc.waitFor();
@@ -143,8 +141,8 @@ implements Replicable, Reconfigurable, ClientMessenger{
 	public boolean restore(String name, String state) {
 		// drop table first
 		try {
-			stmt.executeUpdate("DROP TABLE IF EXISTS "+name);
-			tables.remove(name);
+			stmt.execute("DROP TABLE IF EXISTS "+name);
+			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -175,7 +173,7 @@ implements Replicable, Reconfigurable, ClientMessenger{
 				e.printStackTrace();
 			}
 			
-			tables.add(name);
+			
 			f.delete();
 		}
 		

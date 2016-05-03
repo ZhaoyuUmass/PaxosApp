@@ -129,7 +129,7 @@ public class ReconfigurableMySQLClient extends ReconfigurableAppClientAsync {
 	
 	
 	private static void sendMySQLReqeust(ReconfigurableMySQLClient client){
-		String drop_table = "DROP TABLE IF EXISTS salary";
+		String drop_table = "DROP TABLE IF EXISTS "+serviceName;
 		Future<Boolean> future = executorPool.submit(new RequestRunnable(drop_table));
 		try {
 			future.get(TIMEOUT, TimeUnit.MILLISECONDS);
@@ -137,7 +137,7 @@ public class ReconfigurableMySQLClient extends ReconfigurableAppClientAsync {
 			e.printStackTrace();
 		}
 		
-		String create_table = "CREATE TABLE salary (id INTEGER not NULL, salary INTEGER, PRIMARY KEY ( id ))";
+		String create_table = "CREATE TABLE "+serviceName+" (id INTEGER not NULL, salary INTEGER, PRIMARY KEY ( id ))";
 		future = executorPool.submit(new RequestRunnable(create_table));
 		try {
 			future.get(TIMEOUT, TimeUnit.MILLISECONDS);
@@ -149,7 +149,7 @@ public class ReconfigurableMySQLClient extends ReconfigurableAppClientAsync {
 		for (int i=0; i<NUM_REQ; i++){
 			int id = getNextID();
 			int salary = rand.nextInt(1000);
-			String insert_record = "INSERT INTO salary (id, salary) VALUES ("+id+","+salary+")";
+			String insert_record = "INSERT INTO "+serviceName+" (id, salary) VALUES ("+id+","+salary+")";
 			future = executorPool.submit(new RequestRunnable(insert_record));
 			
 			try {
