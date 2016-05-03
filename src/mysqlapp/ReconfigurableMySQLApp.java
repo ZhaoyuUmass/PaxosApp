@@ -69,7 +69,14 @@ implements Replicable, Reconfigurable, ClientMessenger{
 	}
 	
 	@Override
-	public boolean execute(Request request) {
+	public boolean execute(Request request){
+		return this.execute(request, false);
+	}
+	
+	@Override
+	public boolean execute(Request request, boolean doNotReplyToClient) {
+		System.out.println(this+": received "+request);
+		
 		if (request.toString().equals(Request.NO_OP)){
 			return true;
 		}
@@ -80,7 +87,7 @@ implements Replicable, Reconfigurable, ClientMessenger{
 		default:
 			break;
 		}		
-		return true;
+		return false;
 	}
 	
 	private boolean processRequest(AppRequest request) {
