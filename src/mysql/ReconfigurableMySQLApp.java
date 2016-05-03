@@ -41,7 +41,7 @@ implements Replicable, Reconfigurable, ClientMessenger{
 	static final String DB_URL = "jdbc:mysql://localhost/"+DB_NAME;
 
 	static final String USER = "root";
-	static final String PASSWORD = "";
+	static final String PASSWORD = "sd86787439";
 	
 	Connection conn = null;
 	Statement stmt = null;
@@ -89,7 +89,6 @@ implements Replicable, Reconfigurable, ClientMessenger{
 			return true;
 		}
 				
-		String table = request.getServiceName();
 		String sql = request.getValue();
 		
 		try {

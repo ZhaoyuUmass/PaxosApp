@@ -158,7 +158,7 @@ public class ReconfigurableEtherpadApp extends AbstractReconfigurablePaxosApp<St
 	
 	@Override
 	public void setClientMessenger(SSLMessenger<?, JSONObject> msgr) {
-		this.myID = msgr.getMyID().toString();		
+		// do nothing	
 	}	
 	
 	public String toString(){

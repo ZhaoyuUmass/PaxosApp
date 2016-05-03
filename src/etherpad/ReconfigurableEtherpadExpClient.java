@@ -6,7 +6,6 @@ import java.math.BigInteger;
 import java.net.Socket;
 import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -19,7 +18,6 @@ import java.util.concurrent.TimeoutException;
 
 import org.json.JSONException;
 
-import edu.umass.cs.gigapaxos.PaxosConfig;
 import edu.umass.cs.gigapaxos.interfaces.Request;
 import edu.umass.cs.gigapaxos.interfaces.RequestCallback;
 import edu.umass.cs.nio.interfaces.IntegerPacketType;
@@ -39,7 +37,7 @@ public class ReconfigurableEtherpadExpClient extends ReconfigurableAppClientAsyn
 	// service name is also the pad name
 	private final static String serviceName = "ReconfigurableEtherpadApp0";
 	private final static int NUM_THREAD = 10;
-	private final static int TIMEOUT = 2000;
+	private final static int TIMEOUT = 1000;
 	private final static int REQ_LENTGH = 100;
 	
 	private static ReconfigurableEtherpadExpClient client;	
@@ -79,12 +77,11 @@ public class ReconfigurableEtherpadExpClient extends ReconfigurableAppClientAsyn
 		
 		@Override
 		public void handleResponse(Request response) {
-//			if(response.getRequestType()==ReconfigurationPacket.PacketType.ACTIVE_REPLICA_ERROR)
-//				return;
 			
 			long eclapsed = System.currentTimeMillis() - this.initTime;
 			
 			if(response.getRequestType() != AppRequest.PacketType.DEFAULT_APP_REQUEST){
+				updateLatency(0);
 				System.out.println(response+" "+response.getRequestType());
 			}else{
 				updateLatency(eclapsed);
@@ -97,9 +94,9 @@ public class ReconfigurableEtherpadExpClient extends ReconfigurableAppClientAsyn
 		
 	}
 	
-	private static class requestRunnable implements Callable<Boolean>{
+	private static class RequestRunnable implements Callable<Boolean>{
 		Object obj = new Object();
-		
+
 		@Override
 		public Boolean call() throws Exception {
 			
@@ -148,7 +145,9 @@ public class ReconfigurableEtherpadExpClient extends ReconfigurableAppClientAsyn
 		executorPool.prestartAllCoreThreads();
 		
 		while (received < NUM_REQ){
-			Future<Boolean> future = executorPool.submit(new requestRunnable());
+			long t1 = System.currentTimeMillis();
+
+			Future<Boolean> future = executorPool.submit(new RequestRunnable());
 			try {
 				boolean rcvd = future.get(TIMEOUT, TimeUnit.MILLISECONDS);
 				if(rcvd){
@@ -157,7 +156,12 @@ public class ReconfigurableEtherpadExpClient extends ReconfigurableAppClientAsyn
 			} catch (ExecutionException | TimeoutException e) {
 				received++;
 				timeout++;
+				updateLatency(TIMEOUT);
 				e.printStackTrace();
+			}
+			long eclapsed = System.currentTimeMillis() - t1;
+			if (eclapsed < TIMEOUT){
+				Thread.sleep(TIMEOUT-eclapsed);
 			}
 		} 
 		long totalLatency = 0;
@@ -166,6 +170,7 @@ public class ReconfigurableEtherpadExpClient extends ReconfigurableAppClientAsyn
 			totalLatency += lat;
 			response += lat+",";
 		}
+		
 		if(response.length() > 1)
 			response = response.substring(0, response.length()-1);
 		
