@@ -167,10 +167,11 @@ implements Replicable, Reconfigurable, ClientMessenger{
 				e.printStackTrace();
 			}
 			
-			String executeCmd = "mysql -u" + USER + " --password=" + PASSWORD + " < " + path;
+			String command = "mysql -u" + USER + " --password=" + PASSWORD + " "+DB_NAME+" < " + path;
 			try {
-				Process proc = Runtime.getRuntime().exec(executeCmd);
-				int processComplete = proc.waitFor();
+				Process proc = Runtime.getRuntime().exec(new String[] { "/bin/bash", "-c", command });
+				proc.waitFor();
+				
 				System.out.println("database has been restored.");
 			} catch (IOException e) {
 				e.printStackTrace();
