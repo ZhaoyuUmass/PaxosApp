@@ -110,7 +110,8 @@ implements Replicable, Reconfigurable, ClientMessenger{
 		
 		Process proc = Runtime.getRuntime().exec(cmd);
 		proc.waitFor();
-				
+		System.out.println("Exit code is "+proc.exitValue()+", and its status is "+proc.isAlive());
+		
 		StringBuilder builder = new StringBuilder();
 		BufferedReader br = new BufferedReader(new InputStreamReader(proc.getInputStream()));
 		String line = "";
@@ -118,7 +119,7 @@ implements Replicable, Reconfigurable, ClientMessenger{
 		    builder.append(line+"\n");
 		}
 		br.close();
-
+		
 		return builder.toString();
 	}
 	
@@ -163,6 +164,7 @@ implements Replicable, Reconfigurable, ClientMessenger{
 			// retrieve uuid for name
 			String uuid = executeCommand(ReconfigurableOpenKMClient.getUuidCommand(name));
 			System.out.println("The group folder's uuid is "+uuid);
+			
 			// retrieve all documents' name and content
 			String childrenXML = executeCommand(ReconfigurableOpenKMClient.getDocumentChildrenCommand(uuid));
 			System.out.println(">>>>>>>>>>>>>>>>>"+childrenXML);
