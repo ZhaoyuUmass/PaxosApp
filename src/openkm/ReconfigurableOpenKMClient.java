@@ -229,7 +229,7 @@ public class ReconfigurableOpenKMClient extends ReconfigurableAppClientAsync {
 	 * @param uuid
 	 * @return
 	 */
-	protected static String getDocumentChildrenCommand(String uuid){
+	public static String getDocumentChildrenCommand(String uuid){
 		String cmd = "curl";
 		cmd = cmd + delimiter + "-u";
 		cmd = cmd + delimiter + "okmAdmin:admin";
@@ -267,7 +267,7 @@ public class ReconfigurableOpenKMClient extends ReconfigurableAppClientAsync {
 		// Create document
 		System.out.println("Start sending "+NUM_REQ+" requests...");
 		for (int i=0; i<NUM_REQ; i++){
-			command = createDocumentCommand(root+serviceName+"/"+getRandomString()+".txt", "hello,world!");
+			command = createDocumentCommand(root+serviceName+"/"+getRandomString()+".txt", "helloworld");
 			future = executorPool.submit(new RequestRunnable(command));
 			
 			try {

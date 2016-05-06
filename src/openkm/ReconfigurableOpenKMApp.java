@@ -36,14 +36,14 @@ import edu.umass.cs.reconfiguration.reconfigurationutils.RequestParseException;
  */
 public class ReconfigurableOpenKMApp extends AbstractReconfigurablePaxosApp<String> 
 implements Replicable, Reconfigurable, ClientMessenger{
-	DocumentBuilder builder;
+	DocumentBuilder docBuilder;
 	
 	/**
 	 * 
 	 */
 	public ReconfigurableOpenKMApp(){
 		try {
-			builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+			docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 		} catch (ParserConfigurationException e) {
 			e.printStackTrace();
 		}
@@ -74,7 +74,6 @@ implements Replicable, Reconfigurable, ClientMessenger{
 			return true;
 		}
 		
-		System.out.println(this+": received "+request);
 		
 		String op = request.getValue();
 		String[] urls = op.split(ReconfigurableOpenKMClient.fdelimiter);
@@ -107,7 +106,7 @@ implements Replicable, Reconfigurable, ClientMessenger{
 	private String executeCommand(String operation) throws IOException, InterruptedException{
 		
 		String[] cmd = operation.split(ReconfigurableOpenKMClient.delimiter);
-		System.out.println(operation);
+		//System.out.println(operation);
 		
 		Process proc = Runtime.getRuntime().exec(cmd);
 		proc.waitFor();
@@ -123,12 +122,13 @@ implements Replicable, Reconfigurable, ClientMessenger{
 		return builder.toString();
 	}
 	
-	private String processXMLAndGetDocList(String xml) throws SAXException, IOException, InterruptedException{
+	private String processXMLAndGetDocList(String xml) throws SAXException, IOException, InterruptedException, ParserConfigurationException{
         String state = "";
         
         ByteArrayInputStream input =  new ByteArrayInputStream(
        		   xml.getBytes("UTF-8"));
         
+        DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         Document doc = builder.parse(input);
         doc.getDocumentElement().normalize();
         
@@ -165,6 +165,8 @@ implements Replicable, Reconfigurable, ClientMessenger{
 			
 			// retrieve all documents' name and content
 			String childrenXML = executeCommand(ReconfigurableOpenKMClient.getDocumentChildrenCommand(uuid));
+			System.out.println(childrenXML);
+			
 			state = processXMLAndGetDocList(childrenXML);
 			
 			// delete the folder
