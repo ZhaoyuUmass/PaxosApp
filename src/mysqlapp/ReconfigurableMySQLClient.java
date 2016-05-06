@@ -159,9 +159,20 @@ public class ReconfigurableMySQLClient extends ReconfigurableAppClientAsync {
 			}
 		}
 		
+		long totalLatency = 0;
+		String response = "";
+		for (long lat:latencies){
+			totalLatency += lat;
+			response += lat+",";
+		}
 		
-		System.out.println("Experiment is done, reconfiguration acts as expected!");
+		if(response.length() > 1)
+			response = response.substring(0, response.length()-1);
 		
+		System.out.println("Sent "+NUM_REQ+" requests, received "+(received-timeout)+" requests and "+ timeout + " requests timed out"
+				+ ". The average latency is "+totalLatency/(received-timeout)+"ms");
+		System.out.println("RESPONSE:"+response);
+				
 		System.exit(0);
 	}
 	

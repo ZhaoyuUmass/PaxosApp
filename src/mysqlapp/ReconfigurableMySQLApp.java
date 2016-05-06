@@ -7,12 +7,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.Set;
 
 import org.json.JSONException;
@@ -45,9 +42,7 @@ implements Replicable, Reconfigurable, ClientMessenger{
 	
 	Connection conn = null;
 	Statement stmt = null;
-	
-	//ArrayList<String> tables = new ArrayList<String>();
-	
+		
 	/**
 	 * @throws ClassNotFoundException 
 	 * @throws SQLException 
@@ -58,14 +53,6 @@ implements Replicable, Reconfigurable, ClientMessenger{
 		Class.forName("com.mysql.jdbc.Driver");
 		conn = DriverManager.getConnection(DB_URL,USER,PASSWORD);
 		stmt = conn.createStatement();
-		
-		DatabaseMetaData meta = conn.getMetaData();
-		ResultSet res = meta.getTables(null, null, null, null);
-		while(res.next()){
-			//tables.add(res.getString("TABLE_NAME"));
-		}
-		
-		System.out.println(" >>>>>>>>>>>>>>>>>> Connection initialized!");
 	}
 	
 	@Override
@@ -171,8 +158,7 @@ implements Replicable, Reconfigurable, ClientMessenger{
 			try {
 				Process proc = Runtime.getRuntime().exec(new String[] { "/bin/bash", "-c", command });
 				proc.waitFor();
-				
-				System.out.println("database has been restored.");
+
 			} catch (IOException e) {
 				e.printStackTrace();
 			} catch (InterruptedException e) {
