@@ -163,6 +163,7 @@ implements Replicable, Reconfigurable, ClientMessenger{
 		try {
 			// retrieve uuid for name
 			String uuid = executeCommand(ReconfigurableOpenKMClient.getUuidCommand(name));
+			uuid = uuid.substring(0, uuid.length()-1);
 			System.out.println("The group folder's uuid is "+uuid);
 			
 			// retrieve all documents' name and content
