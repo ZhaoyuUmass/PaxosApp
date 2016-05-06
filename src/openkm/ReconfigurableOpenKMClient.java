@@ -66,7 +66,7 @@ public class ReconfigurableOpenKMClient extends ReconfigurableAppClientAsync {
 	 */
 	protected final static String delimiter = ",";
 	protected final static String root = "/okm:root/";
-	protected final static String fdelimiter = "|";
+	protected final static String fdelimiter = "-";
 	
 	static class MyThreadFactory implements ThreadFactory {
 		
@@ -162,7 +162,7 @@ public class ReconfigurableOpenKMClient extends ReconfigurableAppClientAsync {
 		String cmd = "curl";
 		cmd = cmd + delimiter + "-u";
 		cmd = cmd + delimiter + "okmAdmin:admin";
-		cmd = cmd + delimiter + "-H ";
+		cmd = cmd + delimiter + "-H";
 		cmd = cmd + delimiter + "Accept: application/xml";
 		cmd = cmd + delimiter + "-X";
 		cmd = cmd + delimiter + "POST";
@@ -178,7 +178,7 @@ public class ReconfigurableOpenKMClient extends ReconfigurableAppClientAsync {
 		String cmd ="curl";
 		cmd = cmd + delimiter + "-u";
 		cmd = cmd + delimiter + "okmAdmin:admin";
-		cmd = cmd + delimiter + "-H ";
+		cmd = cmd + delimiter + "-H";
 		cmd = cmd + delimiter + "Accept: application/xml";
 		cmd = cmd + delimiter + "-X";
 		cmd = cmd + delimiter + "DELETE";
@@ -193,7 +193,7 @@ public class ReconfigurableOpenKMClient extends ReconfigurableAppClientAsync {
 		String cmd = "curl";
 		cmd = cmd + delimiter + "-u";
 		cmd = cmd + delimiter + "okmAdmin:admin";
-		cmd = cmd + delimiter + "-H ";
+		cmd = cmd + delimiter + "-H";
 		cmd = cmd + delimiter + "Accept: application/xml";
 		cmd = cmd + delimiter + "-X";
 		cmd = cmd + delimiter + "POST";
@@ -214,7 +214,7 @@ public class ReconfigurableOpenKMClient extends ReconfigurableAppClientAsync {
 		String cmd = "curl";
 		cmd = cmd + delimiter + "-u";
 		cmd = cmd + delimiter + "okmAdmin:admin";
-		cmd = cmd + delimiter + "-H ";
+		cmd = cmd + delimiter + "-H";
 		cmd = cmd + delimiter + "Accept: application/xml";
 		cmd = cmd + delimiter + "-X";
 		cmd = cmd + delimiter + "GET"; 
@@ -233,7 +233,7 @@ public class ReconfigurableOpenKMClient extends ReconfigurableAppClientAsync {
 		String cmd = "curl";
 		cmd = cmd + delimiter + "-u";
 		cmd = cmd + delimiter + "okmAdmin:admin";
-		cmd = cmd + delimiter + "-H ";
+		cmd = cmd + delimiter + "-H";
 		cmd = cmd + delimiter + "Accept: application/xml";
 		cmd = cmd + delimiter + "-X";
 		cmd = cmd + delimiter + "GET"; 
