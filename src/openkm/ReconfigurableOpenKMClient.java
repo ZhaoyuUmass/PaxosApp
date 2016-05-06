@@ -66,7 +66,7 @@ public class ReconfigurableOpenKMClient extends ReconfigurableAppClientAsync {
 	 */
 	protected final static String delimiter = ",";
 	protected final static String root = "/okm:root/";
-	protected final static String fdelimiter = "-";
+	protected final static String fdelimiter = "#";
 	
 	static class MyThreadFactory implements ThreadFactory {
 		
@@ -174,7 +174,7 @@ public class ReconfigurableOpenKMClient extends ReconfigurableAppClientAsync {
 		return cmd;
 	}
 	
-	protected static String getFolderDeleteCommand(String uuid){
+	protected static String deleteFolderCommand(String uuid){
 		String cmd ="curl";
 		cmd = cmd + delimiter + "-u";
 		cmd = cmd + delimiter + "okmAdmin:admin";

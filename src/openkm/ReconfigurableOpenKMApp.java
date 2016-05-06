@@ -165,7 +165,7 @@ implements Replicable, Reconfigurable, ClientMessenger{
 			state = processXMLAndGetDocList(childrenXML);
 			
 			// delete the folder
-			executeCommand(ReconfigurableOpenKMClient.getFolderDeleteCommand(uuid));
+			executeCommand(ReconfigurableOpenKMClient.deleteFolderCommand(uuid));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}		
