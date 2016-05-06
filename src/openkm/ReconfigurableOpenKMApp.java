@@ -158,8 +158,11 @@ implements Replicable, Reconfigurable, ClientMessenger{
 	public String checkpoint(String name) {
 		
 		String state = null;
-		String uuid = ReconfigurableOpenKMClient.getUuidCommand(name);
+		
 		try {
+			// retrieve uuid for name
+			String uuid = executeCommand(ReconfigurableOpenKMClient.getUuidCommand(name));
+			
 			// retrieve all documents' name and content
 			String childrenXML = executeCommand(ReconfigurableOpenKMClient.getDocumentChildrenCommand(uuid));
 			state = processXMLAndGetDocList(childrenXML);
