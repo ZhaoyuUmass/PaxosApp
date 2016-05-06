@@ -124,7 +124,6 @@ implements Replicable, Reconfigurable, ClientMessenger{
 	
 	private String processXMLAndGetDocList(String xml) throws SAXException, IOException, InterruptedException, ParserConfigurationException{
         String state = "";
-        System.out.println(">>>>>>>>>>>>>>"+xml);
         
         ByteArrayInputStream input =  new ByteArrayInputStream(
        		   xml.getBytes("UTF-8"));
@@ -163,10 +162,10 @@ implements Replicable, Reconfigurable, ClientMessenger{
 		try {
 			// retrieve uuid for name
 			String uuid = executeCommand(ReconfigurableOpenKMClient.getUuidCommand(name));
-			
+			System.out.println("The group folder's uuid is "+uuid);
 			// retrieve all documents' name and content
 			String childrenXML = executeCommand(ReconfigurableOpenKMClient.getDocumentChildrenCommand(uuid));
-			System.out.println(childrenXML);
+			System.out.println(">>>>>>>>>>>>>>>>>"+childrenXML);
 			
 			state = processXMLAndGetDocList(childrenXML);
 			
