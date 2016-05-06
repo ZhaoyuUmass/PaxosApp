@@ -124,6 +124,7 @@ implements Replicable, Reconfigurable, ClientMessenger{
 	
 	private String processXMLAndGetDocList(String xml) throws SAXException, IOException, InterruptedException, ParserConfigurationException{
         String state = "";
+        System.out.println(">>>>>>>>>>>>>>"+xml);
         
         ByteArrayInputStream input =  new ByteArrayInputStream(
        		   xml.getBytes("UTF-8"));
