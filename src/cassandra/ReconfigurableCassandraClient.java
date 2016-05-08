@@ -234,7 +234,6 @@ public class ReconfigurableCassandraClient extends ReconfigurableAppClientAsync{
 
 						sendCassandraReqeust(client);
 						
-						
 					}
 				});
 		

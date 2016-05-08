@@ -33,7 +33,7 @@ import edu.umass.cs.reconfiguration.reconfigurationutils.RequestParseException;
 public class ReconfigurableCassandraApp extends AbstractReconfigurablePaxosApp<String> 
 implements Replicable, Reconfigurable, ClientMessenger {
 	
-	final String CQLSH = "/home/ec2-user/apache-cassandra-3.5/bin/cqlsh";
+	final String CQLSH = "/home/ubuntu/apache-cassandra-3.5/bin/cqlsh";
 	final String KEYSPACE = "mykeyspace";
 	final String delimiter = "\nDATA FROM HERE\n";
 	
