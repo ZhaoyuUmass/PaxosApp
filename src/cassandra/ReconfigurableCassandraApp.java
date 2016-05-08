@@ -120,6 +120,8 @@ implements Replicable, Reconfigurable, ClientMessenger {
 		
 		state = state + executeDump(cmd2);
 		
+		session.execute("DROP table "+name+";");
+		
 		return state;
 	}
 	
@@ -160,7 +162,7 @@ implements Replicable, Reconfigurable, ClientMessenger {
 			}catch(Exception e){
 				e.printStackTrace();
 			}
-		}
+		} 
 		
 		return true;
 	}
