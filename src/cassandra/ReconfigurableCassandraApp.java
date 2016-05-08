@@ -93,7 +93,7 @@ implements Replicable, Reconfigurable, ClientMessenger {
 			Process proc = Runtime.getRuntime().exec(cmd);
 			int processComplete = proc.waitFor();
 
-			assert(processComplete  == 0);
+			
 			
 			BufferedReader br = new BufferedReader(new InputStreamReader(proc.getInputStream()));
 			String line = "";
@@ -116,7 +116,7 @@ implements Replicable, Reconfigurable, ClientMessenger {
 		
 		state = state + delimiter;
 		
-		String[] cmd2 = {CQLSH, "-e", "COPY mykeyspace.salary TO STDOUT;"};
+		String[] cmd2 = {CQLSH, "-e", "COPY mykeyspace."+name+" TO STDOUT;"};
 		
 		state = state + executeDump(cmd2);
 		
@@ -154,7 +154,7 @@ implements Replicable, Reconfigurable, ClientMessenger {
 			}
 			
 			path = "data.cql";
-			String[] command2 = {CQLSH, "-e", "COPY mykeyspace.salary TO 'data.cql';"};
+			String[] command2 = {CQLSH, "-e", "COPY mykeyspace."+name+" FROM 'data.cql';"};
 			try{
 				executeRestore(path, command2, schemaAndData[1]);
 			}catch(Exception e){
