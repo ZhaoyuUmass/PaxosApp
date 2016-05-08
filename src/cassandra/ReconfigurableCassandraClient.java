@@ -1,4 +1,4 @@
-package mysqlapp;
+package cassandra;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,15 +24,15 @@ import edu.umass.cs.reconfiguration.examples.AppRequest;
 import edu.umass.cs.reconfiguration.examples.noopsimple.NoopApp;
 import edu.umass.cs.reconfiguration.reconfigurationpackets.CreateServiceName;
 import edu.umass.cs.reconfiguration.reconfigurationutils.RequestParseException;
-import mysqlapp.ReconfigurableMySQLApp;
+
 
 /**
  * @author gaozy
  *
  */
-public class ReconfigurableMySQLClient extends ReconfigurableAppClientAsync {
+public class ReconfigurableCassandraClient extends ReconfigurableAppClientAsync{
 	
-	final static String serviceName = ReconfigurableMySQLApp.class.getSimpleName()+0;	
+	final static String serviceName = ReconfigurableCassandraApp.class.getSimpleName()+0;	
 	private final static int NUM_THREAD = 10;
 	private final static int TIMEOUT = 1000;
 	
@@ -44,7 +44,7 @@ public class ReconfigurableMySQLClient extends ReconfigurableAppClientAsync {
 	}
 	private static Random rand = new Random();
 	
-	private static ReconfigurableMySQLClient client;	
+	private static ReconfigurableCassandraClient client;	
 	private static ThreadPoolExecutor executorPool = new ThreadPoolExecutor(NUM_THREAD, NUM_THREAD, 0, TimeUnit.SECONDS, 
     		new LinkedBlockingQueue<Runnable>(), new MyThreadFactory());
 	
@@ -55,6 +55,13 @@ public class ReconfigurableMySQLClient extends ReconfigurableAppClientAsync {
 		latencies.add(latency);
 	}
 	
+	/**
+	 * @throws IOException
+	 */
+	public ReconfigurableCassandraClient() throws IOException {
+		super();
+	}
+	
 	static class MyThreadFactory implements ThreadFactory {
 		
     	public Thread newThread(Runnable r) {
@@ -62,6 +69,7 @@ public class ReconfigurableMySQLClient extends ReconfigurableAppClientAsync {
     	    return t;
     	}
 	}
+	
 	
 	private static class RequestRunnable implements Callable<Boolean>{
 		Object obj = new Object();
@@ -79,7 +87,7 @@ public class ReconfigurableMySQLClient extends ReconfigurableAppClientAsync {
 				System.out.println("Send request "+getNextID()+" to "+serviceName);
 				client.sendRequest(new AppRequest(serviceName, this.sql,
 						AppRequest.PacketType.DEFAULT_APP_REQUEST, false)
-						, new MySQLCallback(System.currentTimeMillis(), obj));
+						, new CassandraCallback(System.currentTimeMillis(), obj));
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -92,18 +100,11 @@ public class ReconfigurableMySQLClient extends ReconfigurableAppClientAsync {
 		
 	}
 	
-	/**
-	 * @throws IOException
-	 */
-	public ReconfigurableMySQLClient() throws IOException {
-		super();
-	}
-	
-	private static class MySQLCallback implements RequestCallback{
+	private static class CassandraCallback implements RequestCallback{
 		private long initTime;
 		private Object obj;
 		
-		MySQLCallback(long initTime, Object obj){
+		CassandraCallback(long initTime, Object obj){
 			this.initTime = initTime;
 			this.obj = obj;
 		}
@@ -128,8 +129,8 @@ public class ReconfigurableMySQLClient extends ReconfigurableAppClientAsync {
 	}
 	
 	
-	private static void sendMySQLReqeust(ReconfigurableMySQLClient client){
-		String drop_table = "DROP TABLE IF EXISTS "+serviceName;
+	private static void sendCassandraReqeust(ReconfigurableCassandraClient client){
+		String drop_table = "DROP TABLE IF EXISTS "+serviceName+";";
 		Future<Boolean> future = executorPool.submit(new RequestRunnable(drop_table));
 		try {
 			future.get(TIMEOUT, TimeUnit.MILLISECONDS);
@@ -137,8 +138,16 @@ public class ReconfigurableMySQLClient extends ReconfigurableAppClientAsync {
 			e.printStackTrace();
 		}
 		
-		String create_table = "CREATE TABLE "+serviceName+" (id INTEGER not NULL, salary INTEGER, PRIMARY KEY ( id ))";
+		String create_table = "CREATE TABLE "+serviceName+" (id int PRIMARY KEY, salary int);";
 		future = executorPool.submit(new RequestRunnable(create_table));
+		try {
+			future.get(TIMEOUT, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+			e.printStackTrace();
+		}
+		
+		String insert_record = "INSERT INTO "+serviceName+" (id, salary) VALUES (0, 1000);";
+		future = executorPool.submit(new RequestRunnable(insert_record));
 		try {
 			future.get(TIMEOUT, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException | ExecutionException | TimeoutException e) {
@@ -147,10 +156,9 @@ public class ReconfigurableMySQLClient extends ReconfigurableAppClientAsync {
 		
 		System.out.println("Start sending "+NUM_REQ+" requests...");
 		for (int i=0; i<NUM_REQ; i++){
-			int id = i;
 			int salary = rand.nextInt(1000);
-			String insert_record = "INSERT INTO "+serviceName+" (id, salary) VALUES ("+id+","+salary+")";
-			future = executorPool.submit(new RequestRunnable(insert_record));
+			String update_record = "UPDATE "+serviceName+" SET salary="+salary+" WHERE id=0;";
+			future = executorPool.submit(new RequestRunnable(update_record));
 			
 			try {
 				future.get(TIMEOUT, TimeUnit.MILLISECONDS);
@@ -172,7 +180,7 @@ public class ReconfigurableMySQLClient extends ReconfigurableAppClientAsync {
 		System.out.println("Sent "+NUM_REQ+" requests, received "+(received-timeout)+" requests and "+ timeout + " requests timed out"
 				+ ". The average latency is "+totalLatency/(received-timeout)+"ms");
 		System.out.println("RESPONSE:"+response);
-				
+
 	}
 	
 	@Override
@@ -190,10 +198,24 @@ public class ReconfigurableMySQLClient extends ReconfigurableAppClientAsync {
 		return NoopApp.staticGetRequestTypes();
 	}
 	
+	/**
+	 * @param args
+	 * @throws IOException 
+	 * @throws InterruptedException 
+	 */
 	public static void main(String[] args) throws IOException, InterruptedException{
+		// CREATE TABLE IF NOT EXISTS salary (id int PRIMARY KEY, salary int)
+		// INSERT INTO salary (id, salary) VALUES (0, 1000);
+		// UPDATE salary SET salary=100 WHERE id=0;
+		
+		// Runtime: /Users/gaozy/apache-cassandra-3.5/bin/cqlsh -e "COPY mykeyspace.salary TO STDOUT;"
+		// Runtime: ./apache-cassandra-3.5/bin/cqlsh -e "DESC KEYSPACE mykeyspace" > user_schema.cql
+		// Runtime: ./apache-cassandra-3.5/bin/cqlsh localhost -f user_schema.cql
+		// Runtime: /Users/gaozy/apache-cassandra-3.5/bin/cqlsh -e "COPY mykeyspace.salary FROM 'test.cql';"
+		
 		NUM_REQ = Integer.parseInt(args[0]);
 		
-		client = new ReconfigurableMySQLClient();
+		client = new ReconfigurableCassandraClient();
 		
 		System.out.println("Actives are :"+PaxosConfig.getActives());
 		client.sendRequest(new CreateServiceName(serviceName, 
@@ -210,7 +232,7 @@ public class ReconfigurableMySQLClient extends ReconfigurableAppClientAsync {
 						}
 						
 
-						sendMySQLReqeust(client);
+						sendCassandraReqeust(client);
 						
 						
 					}
@@ -222,6 +244,5 @@ public class ReconfigurableMySQLClient extends ReconfigurableAppClientAsync {
 		}
 		
 		System.exit(0);
-		
 	}
 }

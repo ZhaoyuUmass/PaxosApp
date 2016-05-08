@@ -88,7 +88,7 @@ public class ReconfigurableOpenKMClient extends ReconfigurableAppClientAsync {
 		public Boolean call() throws Exception {
 			
 			try {
-				System.out.println("Send request "+received+" to "+serviceName);
+				System.out.println("Send request "+getNextID()+" to "+serviceName);
 				client.sendRequest(new AppRequest(serviceName, this.content,
 						AppRequest.PacketType.DEFAULT_APP_REQUEST, false)
 						, new OpenKMCallback(System.currentTimeMillis(), obj));
@@ -127,10 +127,10 @@ public class ReconfigurableOpenKMClient extends ReconfigurableAppClientAsync {
 			
 			if(response.getRequestType() != AppRequest.PacketType.DEFAULT_APP_REQUEST){
 				updateLatency(0);
-				System.out.println("Latency of request"+received +":"+eclapsed+"ms."+response+" "+response.getRequestType());
+				System.out.println("Latency of request"+REQ_ID +":"+eclapsed+"ms."+response+" "+response.getRequestType());
 			}else{
 				updateLatency(eclapsed);
-				System.out.println("Latency of request"+received +":"+eclapsed+"ms");
+				System.out.println("Latency of request"+REQ_ID +":"+eclapsed+"ms");
 			}
 			synchronized(obj){
 				obj.notify();

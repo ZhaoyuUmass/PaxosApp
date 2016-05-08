@@ -1,4 +1,4 @@
-package mysqlapp;
+package cassandra;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -6,14 +6,13 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Set;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.datastax.driver.core.Cluster;
+import com.datastax.driver.core.Session;
 
 import edu.umass.cs.gigapaxos.interfaces.ClientMessenger;
 import edu.umass.cs.gigapaxos.interfaces.Replicable;
@@ -31,28 +30,22 @@ import edu.umass.cs.reconfiguration.reconfigurationutils.RequestParseException;
  * @author gaozy
  *
  */
-public class ReconfigurableMySQLApp extends AbstractReconfigurablePaxosApp<String> 
-implements Replicable, Reconfigurable, ClientMessenger{
-	static final String JDBC_DRIVER = "com.mysql.jdbc.Driver"; 
-	static final String DB_NAME = "feedback";
-	static final String DB_URL = "jdbc:mysql://localhost/"+DB_NAME;
-
-	static final String USER = "root";
-	static final String PASSWORD = "sd86787439";
+public class ReconfigurableCassandraApp extends AbstractReconfigurablePaxosApp<String> 
+implements Replicable, Reconfigurable, ClientMessenger {
 	
-	Connection conn = null;
-	Statement stmt = null;
-		
+	final String CQLSH = "/home/ec2-user/apache-cassandra-3.5/bin/cqlsh";
+	final String KEYSPACE = "mykeyspace";
+	final String delimiter = "\nDATA FROM HERE\n";
+	
+	Cluster cluster;
+	Session session;
+	
 	/**
-	 * @throws ClassNotFoundException 
-	 * @throws SQLException 
 	 * 
 	 */
-	public ReconfigurableMySQLApp() throws ClassNotFoundException, SQLException{
-	
-		Class.forName("com.mysql.jdbc.Driver");
-		conn = DriverManager.getConnection(DB_URL,USER,PASSWORD);
-		stmt = conn.createStatement();
+	public ReconfigurableCassandraApp() {
+		cluster = Cluster.builder().addContactPoint("127.0.0.1").build();
+		session = cluster.connect(KEYSPACE);
 	}
 	
 	@Override
@@ -86,28 +79,20 @@ implements Replicable, Reconfigurable, ClientMessenger{
 		}
 		
 		String sql = request.getValue();
-		
-		try {
-			stmt.execute(sql);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+			
+		session.execute(sql);
 		
 		this.sendResponse(request);
 		System.out.println("Application execution time "+(System.currentTimeMillis() - start)+"ms");
 		return true;
 	}
 	
-	@Override
-	public String checkpoint(String name) {
+	private String executeDump(String[] cmd){
 		StringBuilder builder = new StringBuilder();
-		builder.append("USE "+DB_NAME+";\n");
-		
-		String executeCmd = "mysqldump -u" + USER + " --password=" + PASSWORD + " " + DB_NAME+" "+name;
 		try {
-			Process proc = Runtime.getRuntime().exec(executeCmd);
+			Process proc = Runtime.getRuntime().exec(cmd);
 			int processComplete = proc.waitFor();
-			// process must exit normally
+
 			assert(processComplete  == 0);
 			
 			BufferedReader br = new BufferedReader(new InputStreamReader(proc.getInputStream()));
@@ -116,60 +101,69 @@ implements Replicable, Reconfigurable, ClientMessenger{
 			    builder.append(line+"\n");
 			}
 			br.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
-		// drop table first
-		try {
-			stmt.execute("DROP TABLE IF EXISTS "+name);
-			
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		
 		return builder.toString();
 	}
+	
+	@Override
+	public String checkpoint(String name) {
+		String state = "";
 
+		String[] cmd1 = {CQLSH, "-e", "DESC KEYSPACE "+KEYSPACE};
+		state = state + executeDump(cmd1);
+		
+		state = state + delimiter;
+		
+		String[] cmd2 = {CQLSH, "-e", "COPY mykeyspace.salary TO STDOUT;"};
+		
+		state = state + executeDump(cmd2);
+		
+		return state;
+	}
+	
+	private void executeRestore(String path, String[] cmd, String data) throws IOException, InterruptedException{
+		File f = new File(path);
+		
+		FileWriter fw = new FileWriter(f);
+		BufferedWriter bw = new BufferedWriter(fw);
+		bw.write(data);
+		bw.flush();
+		bw.close();		
+
+		Process proc = Runtime.getRuntime().exec( cmd );
+		proc.waitFor();
+		
+		f.delete();
+	}
+	
+	
 	@Override
 	public boolean restore(String name, String state) {
-		
 		if (state != null){
-			/**
-			 * write into a file and load it into mysql
-			 */
-			String path = name+".sql";
-			File f = new File(path);
-			try {				
-				FileWriter fw = new FileWriter(f);
-				BufferedWriter bw = new BufferedWriter(fw);
-				bw.write(state);
-				bw.flush();
-				bw.close();				
-			} catch (IOException e) {
+			String[] schemaAndData = state.split(delimiter);
+			
+			String path = "schema.cql";
+			
+			String[] command1 = {CQLSH, "localhost", "-f", "schema.cql"};
+			try{
+				executeRestore(path, command1, schemaAndData[0]);
+			} catch(Exception e){
 				e.printStackTrace();
 			}
 			
-			String command = "mysql -u" + USER + " --password=" + PASSWORD + " "+DB_NAME+" < " + path;
-			try {
-				Process proc = Runtime.getRuntime().exec(new String[] { "/bin/bash", "-c", command });
-				proc.waitFor();
-
-			} catch (IOException e) {
-				e.printStackTrace();
-			} catch (InterruptedException e) {
+			path = "data.cql";
+			String[] command2 = {CQLSH, "-e", "COPY mykeyspace.salary TO 'data.cql';"};
+			try{
+				executeRestore(path, command2, schemaAndData[1]);
+			}catch(Exception e){
 				e.printStackTrace();
 			}
-			
-			
-			//f.delete();
 		}
 		
 		return true;
 	}
-	
 	
 	@Override
 	public Request getRequest(String stringified) throws RequestParseException {
@@ -185,14 +179,15 @@ implements Replicable, Reconfigurable, ClientMessenger{
 	public Set<IntegerPacketType> getRequestTypes() {
 		return NoopApp.staticGetRequestTypes();
 	}
-	
-	@Override
-	public void setClientMessenger(SSLMessenger<?, JSONObject> msgr) {
-		// Do nothing	
-	}
 
+	@Override
+	public void setClientMessenger(SSLMessenger<?, JSONObject> arg0) {
+		// do nothing
+	}
+	
 	private void sendResponse(AppRequest request) {
 		// set to whatever response value is appropriate
-		request.setResponse(ResponseCodes.ACK.toString() );
+		request.setResponse(ResponseCodes.ACK.toString());		
 	}
+	
 }

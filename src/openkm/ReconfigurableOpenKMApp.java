@@ -106,11 +106,9 @@ implements Replicable, Reconfigurable, ClientMessenger{
 	private String executeCommand(String operation) throws IOException, InterruptedException{
 		
 		String[] cmd = operation.split(ReconfigurableOpenKMClient.delimiter);
-		//System.out.println(operation);
 		
 		Process proc = Runtime.getRuntime().exec(cmd);
 		proc.waitFor();
-		System.out.println("Exit code is "+proc.exitValue()+", and its status is "+proc.isAlive());
 		
 		StringBuilder builder = new StringBuilder();
 		BufferedReader br = new BufferedReader(new InputStreamReader(proc.getInputStream()));
@@ -142,7 +140,6 @@ implements Replicable, Reconfigurable, ClientMessenger{
 			state = state + path+ReconfigurableOpenKMClient.delimiter+
 					executeCommand(ReconfigurableOpenKMClient.getDocumentContentCommand(uuid)) + 
 					ReconfigurableOpenKMClient.fdelimiter;
-			System.out.println(eElement.getNodeName()+" "+path+" "+uuid);
         }
         
         state = state.substring(0,state.length()-1);
@@ -164,11 +161,9 @@ implements Replicable, Reconfigurable, ClientMessenger{
 			// retrieve uuid for name
 			String uuid = executeCommand(ReconfigurableOpenKMClient.getUuidCommand(name));
 			uuid = uuid.substring(0, uuid.length()-1);
-			System.out.println("The group folder's uuid is "+uuid);
 			
 			// retrieve all documents' name and content
 			String childrenXML = executeCommand(ReconfigurableOpenKMClient.getDocumentChildrenCommand(uuid));
-			System.out.println(">>>>>>>>>>>>>>>>>"+childrenXML);
 			
 			state = processXMLAndGetDocList(childrenXML);
 			
