@@ -4,9 +4,9 @@ import java.net.URI;
 import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;

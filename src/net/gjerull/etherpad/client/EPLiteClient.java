@@ -1,7 +1,5 @@
 package net.gjerull.etherpad.client;
 
-import org.json.simple.parser.ParseException;
-
 import java.util.Date;
 import java.util.HashMap;
 

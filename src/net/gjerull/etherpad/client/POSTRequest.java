@@ -1,10 +1,10 @@
 package net.gjerull.etherpad.client;
 
-import java.net.URL;
-import java.net.URLConnection;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.net.URL;
+import java.net.URLConnection;
 
 /**
  * A class for easily executing an HTTP POST request.<br />

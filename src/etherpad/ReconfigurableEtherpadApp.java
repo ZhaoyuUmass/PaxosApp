@@ -35,28 +35,20 @@ public class ReconfigurableEtherpadApp extends AbstractReconfigurablePaxosApp<St
 	// cache the name exists in padIDs
 	List<String> padIDs = null;
 	
-	private final HashMap<String, String> cache = new HashMap<String, String>();	
-	
-	
-	
 	private boolean processRequest(AppRequest request,
-			boolean doNotReplyToClient) {
-		long start = System.currentTimeMillis();		
+			boolean doNotReplyToClient) {		
 		if (request.getServiceName() == null)
 			return true; // no-op
 		if (request.isStop()){
-			System.out.println(this+": received stop msg "+request);
 			return true;
 		}
 				
 		String name = request.getServiceName();
 		String value = request.getValue();
 		
-		//System.out.println("ready to execute request for pad "+name+"with value "+val);
 		parseRequest(name, value);
 		
 		this.sendResponse(request);
-		System.out.println("Application execution time "+(System.currentTimeMillis() - start)+"ms");
 		return true;
 	}
 
@@ -73,21 +65,16 @@ public class ReconfigurableEtherpadApp extends AbstractReconfigurablePaxosApp<St
 	@Override
 	public String checkpoint(String name) {
 		String data = client.getText(name).get("text").toString();
-		System.out.println("checkpoint data:"+data);
 		return data != null? data : null;
 	}
 
 	@Override
 	public boolean restore(String padName, String state) {
-				
-		System.out.println(this+":restore "+padName+" "+state);
 		String data = null;
 		
 		HashMap<String, Object> padMap = client.listAllPads();
 		padIDs = (List<String>) padMap.get("padIDs");
-		for(String item:padIDs){
-			System.out.println("Existing pad:"+item);
-		}
+
 		if(padIDs.contains(padName)){
 			HashMap<String, Object> map = client.getText(padName);
 			if(map.containsKey("text")){
@@ -111,8 +98,6 @@ public class ReconfigurableEtherpadApp extends AbstractReconfigurablePaxosApp<St
 			client.createPad(padName, state);
 			padIDs.add(padName);
 		}
-		
-		System.out.println(this+": restore state has been restored "+state);
 		
 		return true;
 	}
@@ -148,8 +133,8 @@ public class ReconfigurableEtherpadApp extends AbstractReconfigurablePaxosApp<St
 			return processRequest((AppRequest) request, doNotReplyToClient);
 		default:
 			break;
-		}		
-		System.out.println("The demo program should never come here!");
+		}
+		
 		return false;
 	}
 	

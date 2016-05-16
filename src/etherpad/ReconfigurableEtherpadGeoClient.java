@@ -23,7 +23,6 @@ import edu.umass.cs.nio.interfaces.IntegerPacketType;
 import edu.umass.cs.reconfiguration.ReconfigurableAppClientAsync;
 import edu.umass.cs.reconfiguration.examples.AppRequest;
 import edu.umass.cs.reconfiguration.examples.noopsimple.NoopApp;
-import edu.umass.cs.reconfiguration.reconfigurationpackets.ReconfigurationPacket;
 import edu.umass.cs.reconfiguration.reconfigurationutils.RequestParseException;
 
 /**

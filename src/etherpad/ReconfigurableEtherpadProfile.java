@@ -13,7 +13,6 @@ import edu.umass.cs.gigapaxos.interfaces.Request;
 import edu.umass.cs.reconfiguration.examples.AppRequest;
 import edu.umass.cs.reconfiguration.reconfigurationutils.AbstractDemandProfile;
 import edu.umass.cs.reconfiguration.reconfigurationutils.InterfaceGetActiveIPs;
-import etherpad.FakeLatency;
 
 /**
  * @author gaozy

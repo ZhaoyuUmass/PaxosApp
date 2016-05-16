@@ -2,11 +2,8 @@ package etherpad.proxy.test;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.HashMap;
 
 import com.sun.net.httpserver.HttpServer;
-
-import net.gjerull.etherpad.client.EPLiteConnection;
 
 /**
  * @author gaozy

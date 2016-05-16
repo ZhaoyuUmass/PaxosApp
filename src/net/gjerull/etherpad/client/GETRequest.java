@@ -1,8 +1,8 @@
 package net.gjerull.etherpad.client;
 
-import java.net.URL;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.net.URL;
 
 /**
  * A class for easily executing an HTTP GET request.<br />

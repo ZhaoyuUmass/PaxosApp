@@ -69,12 +69,10 @@ implements Replicable, Reconfigurable, ClientMessenger {
 		return false;
 	}
 	
-	private boolean processRequest(AppRequest request) {
-		long start = System.currentTimeMillis();		
+	private boolean processRequest(AppRequest request) {	
 		if (request.getServiceName() == null)
 			return true; // no-op
 		if (request.isStop()){
-			System.out.println(this+": received stop msg "+request);
 			return true;
 		}
 		
@@ -83,7 +81,6 @@ implements Replicable, Reconfigurable, ClientMessenger {
 		session.execute(sql);
 		
 		this.sendResponse(request);
-		System.out.println("Application execution time "+(System.currentTimeMillis() - start)+"ms");
 		return true;
 	}
 	
@@ -91,9 +88,7 @@ implements Replicable, Reconfigurable, ClientMessenger {
 		StringBuilder builder = new StringBuilder();
 		try {
 			Process proc = Runtime.getRuntime().exec(cmd);
-			int processComplete = proc.waitFor();
-
-			
+			proc.waitFor();
 			
 			BufferedReader br = new BufferedReader(new InputStreamReader(proc.getInputStream()));
 			String line = "";

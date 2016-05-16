@@ -65,12 +65,10 @@ implements Replicable, Reconfigurable, ClientMessenger{
 	}
 	
 	
-	private boolean processRequest(AppRequest request) {
-		long start = System.currentTimeMillis();		
+	private boolean processRequest(AppRequest request) {	
 		if (request.getServiceName() == null)
 			return true; // no-op
 		if (request.isStop()){
-			System.out.println(this+": received stop msg "+request);
 			return true;
 		}
 		
@@ -99,7 +97,7 @@ implements Replicable, Reconfigurable, ClientMessenger{
 			}
 		}
 		this.sendResponse(request, response);
-		System.out.println("Application execution time "+(System.currentTimeMillis() - start)+"ms");
+	
 		return true;
 	}
 	
@@ -181,9 +179,8 @@ implements Replicable, Reconfigurable, ClientMessenger{
 		
 		if(state != null){
 			// re-create the folder
-			String command = ReconfigurableOpenKMClient.createFolderCommand(name);
 			try {
-				executeCommand(command);
+				executeCommand(ReconfigurableOpenKMClient.createFolderCommand(name));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

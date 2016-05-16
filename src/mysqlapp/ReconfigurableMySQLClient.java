@@ -24,7 +24,6 @@ import edu.umass.cs.reconfiguration.examples.AppRequest;
 import edu.umass.cs.reconfiguration.examples.noopsimple.NoopApp;
 import edu.umass.cs.reconfiguration.reconfigurationpackets.CreateServiceName;
 import edu.umass.cs.reconfiguration.reconfigurationutils.RequestParseException;
-import mysqlapp.ReconfigurableMySQLApp;
 
 /**
  * @author gaozy
